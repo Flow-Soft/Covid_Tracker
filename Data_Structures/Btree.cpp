@@ -24,14 +24,16 @@ bool Compare(data &A, data &B){
     return true;
 }
 
-// this function will check if the data of two states are equal or not
-bool areEqual(data &A, data &B){
-    // in case any data is not equal return false
-    if(A.state != B.state) return false;
-    if(A.date != B.date) return false;
-    if(A.cases != B.cases) return false;
-    if(A.deaths != B.deaths) return false;
-    // else return true
+bool CompareDate(data &A, string&B){
+    if(A.date.substr(6, 4) != B.substr(6, 4)) return A.date.substr(6, 4) > B.substr(6, 4);
+    if(A.date.substr(3, 2) != B.substr(3, 2)) return A.date.substr(3, 2) > B.substr(3, 2);
+    if(A.date.substr(0, 2) != B.substr(0, 2)) return A.date.substr(0, 2) > B.substr(0, 2);
+    return true;
+}
+
+//this function will check if the date matches or not
+bool areEqual(data &A, string&B){
+    if(A.date != B) return false;
     return true;
 }
 
@@ -66,7 +68,7 @@ public:
     void findTopStatesByCases();
 
     // A function to search a key in the subtree rooted with this node.
-    data *search(data k); // returns NULL if k is not present.
+    void search(string k); // returns NULL if k is not present.
 
 // Make BTree friend of this so that we can access private members of this
 // class in BTree functions
@@ -95,8 +97,8 @@ public:
     { if (root != NULL) root->findTopStatesByCases(); }
 
     // function to search a key in this tree
-    data* search(data k)
-    { return (root == NULL)? NULL : root->search(k); }
+    void search(string k)
+    { if (root != NULL) root->search(k); }
 
     // The main function that inserts a new key in this B-Tree
     void insert(data k);
@@ -178,23 +180,25 @@ void BTreeNode::findTopStatesByCases(){
     }
 
 // Function to search key k in subtree rooted with this node
-data *BTreeNode::search(data Data)
+void BTreeNode::search(string Date)
 {
-    // Find the first key greater than or equal to k
-    int i = 0;
-    while (i < n && Compare(keys[i], Data))
-        i++;
 
-    // If the found key is equal to k, return this node
-    if (areEqual(keys[i] , Data))
-        return keys + i;
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        // If this is not leaf, then compare key[i].date and Date,
+        // traverse the subtree rooted with child C[i].
+        if (leaf == false)
+            C[i]->search(Date);
+        if(keys != NULL)
+        if (areEqual(keys[i] , Date)){
+                result.push_back(keys[i]);
+        }
+    }
 
-    // If key is not found here and this is a leaf node
-    if (leaf == true)
-        return NULL;
-
-    // Go to the appropriate child
-    return C[i]->search(Data);
+    // search in the subtree rooted with last child
+    if (leaf == false)
+        C[i]->search(Date);
 }
 
 // The main function that inserts a new key in this B-Tree
@@ -407,7 +411,7 @@ int main()
     t.traverse();
 
     resultNumber = 5;   //this variable will stores the number of results you want
-    // put this to INT_MAX for getting all results
+    //put this to INT_MAX for getting all results
     result.clear();
 
     //this function will find the top cases in the states
@@ -425,6 +429,18 @@ int main()
 
     cout<<"\nTop States with higher number of deaths\n";
     for(int i=0;i<min(resultNumber, (int)result.size());i++) cout << result[i].state<<" "<<result[i].date<<" "<<result[i].cases<<" "<<result[i].deaths<<endl;
+
+    result.clear();
+    t.search("01-01-2020");
+
+    sort(result.begin(), result.end(), [](data&A, data&B){
+        return A.deaths > B.deaths; // in case you want result on the bases of number of deaths
+        // return A.cases > B.cases;    // in case you want result on the bases of number of cases
+    });
+    
+    cout<<"\nTop States with higher number of deaths on date 01-01-2020\n";
+    for(int i=0;i<min(resultNumber, (int)result.size());i++) cout << result[i].state<<" "<<result[i].date<<" "<<result[i].cases<<" "<<result[i].deaths<<endl;
+
 
     return 0;
 }
