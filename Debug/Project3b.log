@@ -1,0 +1,37 @@
+﻿  CovidGui.cpp
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(384,78): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(384,61): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=int
+          ]
+          and
+          [
+              T=float
+          ]
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(448,66): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(459,71): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(470,67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(481,72): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(626,51): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(662,50): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(699,50): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(736,50): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(829,33): warning C4805: '==': unsafe mix of type 'int' and type 'bool' in operation
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(832,36): warning C4805: '==': unsafe mix of type 'int' and type 'bool' in operation
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(835,38): warning C4805: '==': unsafe mix of type 'int' and type 'bool' in operation
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(838,37): warning C4805: '==': unsafe mix of type 'int' and type 'bool' in operation
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(854,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(857,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(860,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(863,31): warning C4018: '<': signed/unsigned mismatch
+C:\Users\andre\source\repos\Project3b\Project3b\CovidGui.cpp(887,23): warning C4018: '<': signed/unsigned mismatch
+  Project3b.vcxproj -> C:\Users\andre\source\repos\Project3b\Debug\Project3b.exe
