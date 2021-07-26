@@ -257,8 +257,8 @@ int main()
     searchText.setPosition(370, 800);
 
 
-    sf::RectangleShape resetButton(sf::Vector2f(190, 70));
-    resetButton.setPosition(530, 790);
+    sf::RectangleShape resetButton(sf::Vector2f(160, 70));
+    resetButton.setPosition(1700, 720);
     resetButton.setOutlineColor(sf::Color::Black);
     resetButton.setOutlineThickness(1);
     resetButton.setFillColor(sf::Color::Yellow);
@@ -268,7 +268,7 @@ int main()
     resetText.setFont(font);
     resetText.setCharacterSize(34);
     resetText.setFillColor(sf::Color::Black);
-    resetText.setPosition(570, 800);
+    resetText.setPosition(1740, 730);
 
     sf::RectangleShape quitButton(sf::Vector2f(160, 70));
     quitButton.setPosition(1700, 790);
@@ -332,7 +332,7 @@ int main()
 
 
 
-
+ 
 
     //make the second page background rectangles
     sf::RectangleShape whiteSpace1(sf::Vector2f(740, 800));
@@ -359,10 +359,41 @@ int main()
     hashTableTitle.setFillColor(sf::Color::Black);
 
 
+    for (int x = 1; x <= 25; x++) {
+        sf::Text tempText;
+        ///create the text for the 2nd page
+        tempText.setString("");
+        tempText.setPosition(60, 180 + 30 * x);
+        tempText.setFont(font);
+        tempText.setCharacterSize(20);
+        tempText.setFillColor(sf::Color::Black);
+        textVec.push_back(tempText);
+    
+        sf::Text tempText1;
+        tempText1.setString("");
+        tempText1.setPosition(400, 180 + 30 * x);
+        tempText1.setFont(font);
+        tempText1.setCharacterSize(20);
+        tempText1.setFillColor(sf::Color::Black);
+        textVec2.push_back(tempText1);
+    
 
-
-
-
+        sf::Text tempText2;
+        tempText2.setString("");
+        tempText2.setPosition(930, 180 + 30 * x);
+        tempText2.setFont(font);
+        tempText2.setCharacterSize(20);
+        tempText2.setFillColor(sf::Color::Black);
+        textVec3.push_back(tempText2);
+    
+        sf::Text tempText3;
+        tempText3.setString("");
+        tempText3.setPosition(1280, 180 + 30 * x);
+        tempText3.setFont(font);
+        tempText3.setCharacterSize(20);
+        tempText3.setFillColor(sf::Color::Black);
+        textVec4.push_back(tempText3);
+    }
     while (window.isOpen())
     {
         sf::Event event;
@@ -386,6 +417,54 @@ int main()
                     if (quitRectangle.contains(mousePosFloat)) {
 
                         window.close();
+                    }
+                    sf::FloatRect resetRectangle = resetButton.getGlobalBounds();
+                    if (resetRectangle.contains(mousePosFloat)) {
+                        visibleError = false;
+                        visibleErrorDay = false;
+                        visibleErrorMonth = false;
+                        visibleErrorYear = false;
+                        visibleSearch = false;
+                        deathBox = false;
+                        caseBox = false;
+
+                        numState = "";
+                        numYear = "";
+                        numDay = "";
+                        numMonth = "";
+
+                        visible1 = 0;
+                        visibleDay = 0;
+                        visibleMonth = 0;
+                        visibleYear = 0;
+
+                        contained = false;
+                        containedDay = false;
+                        containedMonth = false;
+                        containedYear = false;
+                        deathButton.setOutlineThickness(0);
+                        caseButton.setOutlineThickness(0);
+
+                        answerTextOne.setString("");
+                        answerTextDay.setString("");
+                        answerTextMonth.setString("");
+                        answerTextYear.setString("");
+                        page = 0;
+                        for (int x = 0; x < textVec.size(); x++) {
+                            textVec[x].setString("");
+                        }
+                        for (int x = 0; x < textVec2.size(); x++) {
+                            textVec2[x].setString("");
+                        }
+                        for (int x = 0; x < textVec3.size(); x++) {
+                            textVec3[x].setString("");
+                        }
+                        for (int x = 0; x < textVec4.size(); x++) {
+                            textVec4[x].setString("");
+                        }
+
+
+
                     }
                     if (page == 0) {
                         sf::FloatRect caseRectangle = caseButton.getGlobalBounds();
@@ -442,47 +521,24 @@ int main()
                                 }
 
                                 for (int x = 1; x <= value; x++) {
-                                    sf::Text tempText;
+                                   
                                     ///create the text for the 2nd page
-                                    tempText.setString(to_string(x) + ". ");
-                                    tempText.setPosition(50, 180 + 30 * x);
-                                    tempText.setFont(font);
-                                    tempText.setCharacterSize(20);
-                                    tempText.setFillColor(sf::Color::Black);
-                                    textVec.push_back(tempText);
+                                    textVec[x-1].setString(to_string(x) + ". ");
                                 }
                                 if (number > 25) {
                                     int value2 = number - 25;
                                     for (int x = 1; x <= value2; x++) {
-                                        sf::Text tempText;
-                                        tempText.setString((to_string(x + 25)) + ". ");
-                                        tempText.setPosition(400, 180 + 30 * x);
-                                        tempText.setFont(font);
-                                        tempText.setCharacterSize(20);
-                                        tempText.setFillColor(sf::Color::Black);
-                                        textVec2.push_back(tempText);
+                                        textVec2[x-1].setString((to_string(x + 25)) + ". ");
                                     }
 
                                 }
                                 for (int x = 1; x <= value; x++) {
-                                    sf::Text tempText;
-                                    tempText.setString(to_string(x) + ". ");
-                                    tempText.setPosition(930, 180 + 30 * x);
-                                    tempText.setFont(font);
-                                    tempText.setCharacterSize(20);
-                                    tempText.setFillColor(sf::Color::Black);
-                                    textVec3.push_back(tempText);
+                                    textVec3[x-1].setString(to_string(x) + ". ");
                                 }
                                 if (number > 25) {
                                     int value2 = number - 25;
                                     for (int x = 1; x <= value2; x++) {
-                                        sf::Text tempText;
-                                        tempText.setString((to_string(x + 25)) + ". ");
-                                        tempText.setPosition(1280, 180 + 30 * x);
-                                        tempText.setFont(font);
-                                        tempText.setCharacterSize(20);
-                                        tempText.setFillColor(sf::Color::Black);
-                                        textVec4.push_back(tempText);
+                                        textVec4[x-1].setString((to_string(x + 25)) + ". ");
                                     }
 
                                 }
@@ -505,39 +561,7 @@ int main()
                             }
 
                         }
-                        sf::FloatRect resetRectangle = resetButton.getGlobalBounds();
-                        if (resetRectangle.contains(mousePosFloat)) {
-                            visibleError = false;
-                            visibleErrorDay = false;
-                            visibleErrorMonth = false;
-                            visibleErrorYear = false;
-                            visibleSearch = false;
-                            deathBox = false;
-                            caseBox = false;
-
-                            numState = "";
-                            numYear = "";
-                            numDay = "";
-                            numMonth = "";
-
-                            visible1 = 0;
-                            visibleDay = 0;
-                            visibleMonth = 0;
-                            visibleYear = 0;
-
-                            contained = false;
-                            containedDay = false;
-                            containedMonth = false;
-                            containedYear = false;
-                            deathButton.setOutlineThickness(0);
-                            caseButton.setOutlineThickness(0);
-
-                            answerTextOne.setString("");
-                            answerTextDay.setString("");
-                            answerTextMonth.setString("");
-                            answerTextYear.setString("");
-
-                        }
+                       
                         sf::FloatRect answerOneRect = answerNumStates.getGlobalBounds();
                         if (answerOneRect.contains(mousePosFloat)) {
                             answerNumStates.setOutlineThickness(1);
@@ -775,8 +799,8 @@ int main()
         window.draw(promoText);
         window.draw(quitButton);
         window.draw(quitText);
-
-
+        window.draw(resetButton);
+        window.draw(resetText);
 
         //first page
         if (page == 0) {
@@ -785,7 +809,7 @@ int main()
             window.draw(answerDate2);
             window.draw(answerDate3);
             window.draw(questionOne);
-
+            
 
             window.draw(deathButton);
 
@@ -825,7 +849,7 @@ int main()
             window.draw(questionTwo);
 
             window.draw(searchButton);
-            window.draw(resetButton);
+          
             if (visibleError == true) {
                 window.draw(error1);
             }
@@ -843,7 +867,7 @@ int main()
             }
 
             window.draw(searchText);
-            window.draw(resetText);
+            
 
         }
         if (page == 1) {
