@@ -993,6 +993,27 @@ int main()
     hashTableTitle.setFont(bold);
     hashTableTitle.setCharacterSize(30);
     hashTableTitle.setFillColor(sf::Color::Black);
+    sf::Text time1;
+
+    sf::Text description;
+    description.setString("");
+    description.setPosition(50, 110);
+    description.setFont(font);
+    description.setCharacterSize(20);
+    description.setFillColor(sf::Color::Black);
+
+    time1.setString("BTree Time: ");
+    time1.setPosition(50, 140);
+    time1.setFont(font);
+    time1.setCharacterSize(20);
+    time1.setFillColor(sf::Color::Red);
+
+    sf::Text time2;
+    time2.setString("HashTable: ");
+    time2.setPosition(900, 140);
+    time2.setFont(font);
+    time2.setCharacterSize(20);
+    time2.setFillColor(sf::Color::Red);
 
 
     for (int x = 1; x <= 25; x++) {
@@ -1001,7 +1022,7 @@ int main()
         tempText.setString("");
         tempText.setPosition(60, 180 + 30 * x);
         tempText.setFont(font);
-        tempText.setCharacterSize(20);
+        tempText.setCharacterSize(16);
         tempText.setFillColor(sf::Color::Black);
         textVec.push_back(tempText);
 
@@ -1009,7 +1030,7 @@ int main()
         tempText1.setString("");
         tempText1.setPosition(400, 180 + 30 * x);
         tempText1.setFont(font);
-        tempText1.setCharacterSize(20);
+        tempText1.setCharacterSize(16);
         tempText1.setFillColor(sf::Color::Black);
         textVec2.push_back(tempText1);
 
@@ -1018,7 +1039,7 @@ int main()
         tempText2.setString("");
         tempText2.setPosition(930, 180 + 30 * x);
         tempText2.setFont(font);
-        tempText2.setCharacterSize(20);
+        tempText2.setCharacterSize(16);
         tempText2.setFillColor(sf::Color::Black);
         textVec3.push_back(tempText2);
 
@@ -1026,7 +1047,7 @@ int main()
         tempText3.setString("");
         tempText3.setPosition(1280, 180 + 30 * x);
         tempText3.setFont(font);
-        tempText3.setCharacterSize(20);
+        tempText3.setCharacterSize(16);
         tempText3.setFillColor(sf::Color::Black);
         textVec4.push_back(tempText3);
     }
@@ -1139,6 +1160,14 @@ int main()
 
                             if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true)) {
                                 int number = stoi(numState);
+                                string toggle;
+                                if (deathBox == true) {
+                                    toggle = "Deaths";
+                                }
+                                else{
+                                    toggle = "Cases";
+                                }
+                                description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle );
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
@@ -1511,6 +1540,9 @@ int main()
         if (page == 1) {
             window.draw(whiteSpace1);
             window.draw(whiteSpace2);
+            window.draw(time1);
+            window.draw(time2);
+            window.draw(description);
             window.draw(bTreeTitle);
             window.draw(hashTableTitle);
             for (int x = 0; x < textVec.size(); x++) {
