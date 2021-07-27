@@ -358,6 +358,25 @@ int main()
     hashTableTitle.setCharacterSize(30);
     hashTableTitle.setFillColor(sf::Color::Black);
 
+    sf::Text time1;
+
+    time1.setString("BTree Time: ");
+    time1.setPosition(50, 140);
+    time1.setFont(font);
+    time1.setCharacterSize(20);
+    time1.setFillColor(sf::Color::Red);
+
+    sf::Text time2;
+    time2.setString("HashTable: ");
+    time2.setPosition(900, 140);
+    time2.setFont(font);
+    time2.setCharacterSize(20);
+    time2.setFillColor(sf::Color::Red);
+
+
+
+
+
 
     for (int x = 1; x <= 25; x++) {
         sf::Text tempText;
@@ -394,6 +413,9 @@ int main()
         tempText3.setFillColor(sf::Color::Black);
         textVec4.push_back(tempText3);
     }
+
+
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -433,6 +455,7 @@ int main()
                         numDay = "";
                         numMonth = "";
 
+      
                         visible1 = 0;
                         visibleDay = 0;
                         visibleMonth = 0;
@@ -873,6 +896,11 @@ int main()
         if (page == 1) {
             window.draw(whiteSpace1);
             window.draw(whiteSpace2);
+            window.draw(time1);
+            window.draw(time2);
+
+
+
             window.draw(bTreeTitle);
             window.draw(hashTableTitle);
             for (int x = 0; x < textVec.size(); x++) {
