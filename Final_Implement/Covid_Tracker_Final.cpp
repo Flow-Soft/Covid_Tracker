@@ -11,7 +11,9 @@
 #include<string.h>
 #include<algorithm>
 #include<unordered_map>
+#include<chrono>
 using namespace std;
+using namespace std::chrono;
 
 /***********************Hash Table Data Structure by Yuko Matsumoto******/
 // some macros/micros to make the code a bit smaller
@@ -49,7 +51,7 @@ bool cmp2(node A, node B) {
 
 
 // IN this function we will store the elements in the HashTable
-void insert_elements() {
+/*void insert_elements() {
 
     for (int i = 0; i < 4; i++) {
         node Datax = node();
@@ -81,7 +83,7 @@ void insert_elements() {
     //sorting the table on the cases of number of cases
     trav(state, HashTable) sort(all(state.ss), cmp);
 
-}
+}*/
 
 // this function traverse the whole table and print each data
 void print_all_data() {
@@ -493,7 +495,17 @@ private:
 public:
     void driver(int num, bool death, string numDay, string numMonth, string numYear);				//execute methods in proper order
     void displayTopStates(int n, bool death, string numDay, string numMonth, string numYear);       //display top states by death
+
+    //utilize stl data structures for counting and sorting primary data structures
+    map<string, int> mapper;
+    map<string, int> mapper2;
+    map<string, int>::iterator iter;
+    map<string, int>::iterator iter2;
     vector<pair<string, int>> stateRanks;
+    vector<pair<string, int>> stateRanks2;
+    vector<node> hTableRanks;
+    std::chrono::duration<double> total1;
+    std::chrono::duration<double> total2;
     // Make BTree friend of this so that we can access private members of this
     // class in BTree functions
     //friend class BTree;
@@ -502,6 +514,7 @@ public:
 
 //global objects
 BTree tree(3);                                      //create BTree object to access methods
+//no HashTable class
 
 /****************************userMenu Method Defs******************************/
 //open covid data file
@@ -538,7 +551,11 @@ void userMenu::populate()
     string tempdeaths;
     //BTree tree(3);
     data1 Datax = data1();
-
+    //Hash table
+    node Datay = node();
+    //reset timers
+    total1 = high_resolution_clock::now() - high_resolution_clock::now();
+    total2 = high_resolution_clock::now() - high_resolution_clock::now();
     //read header to discard
     getline(file, recordLine);
     //process census data
@@ -550,9 +567,11 @@ void userMenu::populate()
         /*date*/
         getline(row, date, ',');
         Datax.date = date;
+        Datay.date = date;
         /*state*/
         getline(row, state, ',');
         Datax.state = state;
+        Datay.state = state;
         /*discard fips - not used*/
         getline(row, tempfips, ',');
         fips = stoi(tempfips);
@@ -560,13 +579,30 @@ void userMenu::populate()
         getline(row, tempcases, ',');
         cases = stoi(tempcases);
         Datax.cases = cases;
+        Datay.cases = cases;
         /*number of deaths*/
         getline(row, tempdeaths, ',');
         deaths = stoi(tempdeaths);
         Datax.deaths = deaths;
+        Datay.deaths = deaths;
         //add current object to Btree data structure
+        //Btree timer
+        auto start1 = high_resolution_clock::now();
         tree.insert(Datax);
+        auto stop1 = high_resolution_clock::now();
+        //add current object to Hash Table
+        //HTable timer
+        auto start2 = high_resolution_clock::now();
+        HashTable[Datay.state].push_back(Datay);
+        auto stop2 = high_resolution_clock::now();
+        //add up times for data structures
+        auto duration1 = duration_cast<seconds>(stop1 - start1);
+        auto duration2 = duration_cast<seconds>(stop2 - start2);
+        total1 = total1 + duration1;
+        total2 = total2 + duration2;
     }
+    //sorting the table on the cases of number of cases
+    //trav(state, HashTable) sort(all(state.ss), cmp);
 }
 
 //close employee data file
@@ -581,6 +617,8 @@ bool compare(const pair<string, int>& a, const pair<string, int>& b)
     return (a.second > b.second);
 }
 
+
+
 //display top n states by death
 void userMenu::displayTopStates(int num, bool death, string numDay, string numMonth, string numYear)
 {
@@ -588,13 +626,16 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     //populate vector with top states
     //call tree function based on death or cases toggle bool
     if (death)
+    {
         tree.findTopSatesByDeaths();
+        hTableRanks = Deaths_in_each_state(num);
+    }
     else
+    {
         tree.findTopStatesByCases();
+        hTableRanks = Cases_in_each_state(num);
+    }
 
-    //utilize stl data structures for counting and sorting primary data structures
-    map<string, int> mapper;
-    map<string, int>::iterator iter;
 
     //ensure date adjustment for current or futute dates
     int day = stoi(numDay);
@@ -613,20 +654,35 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     {
         //date check to meet date parameters selected by user
         if (result[i].date >= (numDay + "-" + numMonth + "-" + "20" + numYear))
-            //tally state results to a map
+            //tally state results to a map for BTree
             mapper[result[i].state]++;
     }
-    //move map to vector so data can be sorted
+    //iterate through results vector from HTable
+    for (int j = 0; j < hTableRanks.size(); j++)
+    {
+        //date check to meet date parameters selected by user
+        if (result[j].date >= (numDay + "-" + numMonth + "-" + "20" + numYear))
+            //tally state results to map for HTable
+            mapper2[hTableRanks[j].state]++;
+    }
+    //move map to vector so BTree data can be sorted
     for (auto& it : mapper)
     {
         stateRanks.push_back(it);
     }
-    //sort vevctor of states by cases
+    //move map to vector so HTable data can be sorted
+    for (auto& it2 : mapper2)
+    {
+        stateRanks2.push_back(it2);
+    }
+    //sort vector of states for BTree and HTable
     sort(stateRanks.begin(), stateRanks.end(), compare);
+    sort(stateRanks2.begin(), stateRanks2.end(), compare);
+
     //test display sorted values
     /*for (int i = 0; i < num; i++)
     {
-        cout << stateRanks[i].first << endl;
+        cout << hTableRanks[i].state << "    " << hTableRanks[i].cases << endl;
     }*/
 }
 
@@ -1002,14 +1058,14 @@ int main()
     description.setCharacterSize(20);
     description.setFillColor(sf::Color::Black);
 
-    time1.setString("BTree Time: ");
+    time1.setString("BTree Time: " + to_string(covidObj.total1.count()));
     time1.setPosition(50, 140);
     time1.setFont(font);
     time1.setCharacterSize(20);
     time1.setFillColor(sf::Color::Red);
 
     sf::Text time2;
-    time2.setString("HashTable: ");
+    time2.setString("HashTable: " + to_string(covidObj.total2.count()));
     time2.setPosition(900, 140);
     time2.setFont(font);
     time2.setCharacterSize(20);
@@ -1164,10 +1220,10 @@ int main()
                                 if (deathBox == true) {
                                     toggle = "Deaths";
                                 }
-                                else{
+                                else {
                                     toggle = "Cases";
                                 }
-                                description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle );
+                                description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle);
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
@@ -1185,30 +1241,41 @@ int main()
                                 }
                                 //counter control variable for results vector, needs to start with 0
                                 int index = 0;
+                                int numberList = 0;
                                 for (int x = 1; x <= value; x++) {
-
+                                    numberList = covidObj.mapper[covidObj.stateRanks[index].first];
                                     ///create the text for the 2nd page
-                                    textVec[x - 1].setString(to_string(x) + ". " + covidObj.stateRanks[index].first);
+                                    textVec[x - 1].setString(to_string(x) + ". " + covidObj.stateRanks[index].first + "      " + to_string(numberList));
                                     index++;
                                 }
                                 if (number > 25) {
                                     int value2 = number - 25;
                                     for (int x = 1; x <= value2; x++) {
-                                        textVec2[x - 1].setString((to_string(x + 25)) + ". " + covidObj.stateRanks[index].first);
+                                        numberList = covidObj.mapper[covidObj.stateRanks[index].first];
+                                        textVec2[x - 1].setString((to_string(x + 25)) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
                                         index++;
                                     }
 
                                 }
+                                //reset index for hash table vector iteration
+                                index = 0;
+                                numberList = 0;
                                 for (int x = 1; x <= value; x++) {
-                                    textVec3[x - 1].setString(to_string(x) + ". ");
+                                    numberList = covidObj.mapper[covidObj.stateRanks[index].first];
+                                    textVec3[x - 1].setString(to_string(x) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
+                                    index++;
                                 }
                                 if (number > 25) {
                                     int value2 = number - 25;
                                     for (int x = 1; x <= value2; x++) {
-                                        textVec4[x - 1].setString((to_string(x + 25)) + ". ");
+                                        numberList = covidObj.mapper[covidObj.stateRanks[index].first];
+                                        textVec4[x - 1].setString((to_string(x + 25)) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
+                                        index++;
                                     }
 
                                 }
+                                cout << "Btree Time: " << covidObj.total1.count() << endl; //may need to use to_string(covidObj.total1.count()) in setString.
+                                cout << "HashTable Time: " << covidObj.total2.count() << endl;
 
 
                             }
