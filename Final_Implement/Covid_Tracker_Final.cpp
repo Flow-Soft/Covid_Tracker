@@ -165,7 +165,7 @@ vector<data1> result; //this vector will stores the result
 int resultNumber;     //Number of results to be stored
 
 // Compare two datas of the state in order of number of cases -> number of deaths -> date
-bool Compare(data1 &A, data1 &B)
+bool Compare(data1& A, data1& B)
 {
     if (A.cases != B.cases)
         return A.cases > B.cases;
@@ -180,7 +180,7 @@ bool Compare(data1 &A, data1 &B)
     return true;
 }
 
-bool CompareDate(data1 &A, string &B)
+bool CompareDate(data1& A, string& B)
 {
     if (A.date.substr(6, 4) != B.substr(6, 4))
         return A.date.substr(6, 4) > B.substr(6, 4);
@@ -192,7 +192,7 @@ bool CompareDate(data1 &A, string &B)
 }
 
 //this function will check if the date matches or not
-bool areEqual(data1 &A, string &B)
+bool areEqual(data1& A, string& B)
 {
     if (A.date != B)
         return false;
@@ -203,9 +203,9 @@ bool areEqual(data1 &A, string &B)
 class BTreeNode
 {
 public:
-    data1 *keys;   // An array of keys
+    data1* keys;   // An array of keys
     int t;         // Minimum degree (defines the range for number of keys)
-    BTreeNode **C; // An array of child pointers
+    BTreeNode** C; // An array of child pointers
     int n;         // Current number of keys
     bool leaf;     // Is true when node is leaf. Otherwise false
 public:
@@ -218,7 +218,7 @@ public:
 
     // A utility function to split the child y of this node. i is index of y in
     // child array C[]. The Child y must be full when this function is called
-    void splitChild(int i, BTreeNode *y);
+    void splitChild(int i, BTreeNode* y);
 
     // A function to traverse all nodes in a subtree rooted with this node
     void traverse();
@@ -240,7 +240,7 @@ public:
 // A BTree
 class BTree
 {
-    BTreeNode *root; // Pointer to root node
+    BTreeNode* root; // Pointer to root node
     int t;           // Minimum degree
 public:
     // Constructor (Initializes tree as empty)
@@ -290,7 +290,7 @@ BTreeNode::BTreeNode(int t1, bool leaf1)
     // Allocate memory for maximum number of possible keys
     // and child pointers
     keys = new data1[2 * t - 1];
-    C = new BTreeNode *[2 * t];
+    C = new BTreeNode * [2 * t];
 
     // Initialize the number of keys as 0
     n = 0;
@@ -399,7 +399,7 @@ void BTree::insert(data1 Data)
         if (root->n == 2 * t - 1)
         {
             // Allocate memory for new root
-            BTreeNode *s = new BTreeNode(t, false);
+            BTreeNode* s = new BTreeNode(t, false);
 
             // Make old root as child of new root
             s->C[0] = root;
@@ -470,11 +470,11 @@ void BTreeNode::insertNonFull(data1 Data)
 
 // A utility function to split the child y of this node
 // Note that y must be full when this function is called
-void BTreeNode::splitChild(int i, BTreeNode *y)
+void BTreeNode::splitChild(int i, BTreeNode* y)
 {
     // Create a new node which is going to store (t-1) keys
     // of y
-    BTreeNode *z = new BTreeNode(y->t, y->leaf);
+    BTreeNode* z = new BTreeNode(y->t, y->leaf);
     z->n = t - 1;
 
     // Copy the last (t-1) keys of y to z
@@ -648,7 +648,7 @@ void userMenu::closeFile()
 }
 
 // Comparator function to sort pairs according to second value
-bool compare(const pair<string, int> &a, const pair<string, int> &b)
+bool compare(const pair<string, int>& a, const pair<string, int>& b)
 {
     return (a.second > b.second);
 }
@@ -716,12 +716,12 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
         mapper2[hTableRanks[j].state]++;
     }
     //move map to vector so BTree data can be sorted
-    for (auto &it : mapper)
+    for (auto& it : mapper)
     {
         stateRanks.push_back(it);
     }
     //move map to vector so HTable data can be sorted
-    for (auto &it2 : mapper2)
+    for (auto& it2 : mapper2)
     {
         stateRanks2.push_back(it2);
     }
@@ -749,7 +749,8 @@ void userMenu::driver(int num, bool death, string numDay, string numMonth, strin
 /****************GUI Interface by Andrew Yu****************************/
 //void updatePageTwo(int number, sf::Font, vector<sf::Text> &vec);
 bool checkNum(int start, int end, string number);
-void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage);
+bool checkDate(string month, string day, string year);
+void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage);
 int main()
 {
     //create objects for integration
@@ -1255,9 +1256,10 @@ int main()
                             bool flagDay = checkNum(1, 31, numDay);
                             bool flagYear = checkNum(19, 21, numYear);
 
+                            bool validDate = checkDate(numMonth, numDay, numYear);
                             // cout << numState << endl;
 
-                            if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
+                            if (validDate && flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
                             {
                                 int number = stoi(numState);
                                 string toggle;
@@ -1341,6 +1343,8 @@ int main()
                                     visibleErrorDay = true;
                                 if (flagMonth == false)
                                     visibleErrorMonth = true;
+                                if (validDate == false)
+                                    visibleErrorDay = true;
                                 if (flagYear == false)
                                     visibleErrorYear = true;
                                 if (caseBox == false && deathBox == false)
@@ -1716,7 +1720,7 @@ int main()
     }
 }
 
-void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage)
+void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage)
 {
     imageStorage.emplace(name, text);
 }
@@ -1750,4 +1754,17 @@ bool checkNum(int start, int end, string number)
     }
 
     return flag;
+}
+bool checkDate(string month, string day, string year) {
+    
+    if ((month == "6" ||month == "4" ||month =="11" || month == "7" || month == "2") && day == "31") {
+        return false;
+    }
+    if (month == "2" && day == "30")
+        return false;
+    if (month == "2" && day == "29" && year != "20")
+        return false;
+
+    return true;
+
 }
