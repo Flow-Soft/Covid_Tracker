@@ -6,53 +6,56 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include<iomanip>
-#include<stdlib.h>
-#include<string.h>
-#include<algorithm>
-#include<unordered_map>
-#include<chrono>
+#include <iomanip>
+#include <stdlib.h>
+#include <string.h>
+#include <algorithm>
+#include <unordered_map>
+#include <chrono>
 using namespace std;
 using namespace std::chrono;
 
 /***********************Hash Table Data Structure by Yuko Matsumoto******/
 // some macros/micros to make the code a bit smaller
-#define pb(a) push_back(a)  // define for push_back in the vector
-#define all(a) a.begin(),a.end()   
-#define trav(a,b) for(auto &a: b)   // iterating the list
+#define pb(a) push_back(a) // define for push_back in the vector
+#define all(a) a.begin(), a.end()
+#define trav(a, b) for (auto &a : b) // iterating the list
 #define ff first
 #define ss second
 
 // strcuture of node which will store the data for each state on a particular date
 
-struct node {
-    string state;   //state name
-    string date;    //date
-    int cases;      //number of cases
-    int deaths;     //deaths count
+struct node
+{
+    string state; //state name
+    string date;  //date
+    int cases;    //number of cases
+    int deaths;   //deaths count
 };
 
 //hashTable whch will store the data of each state with key value of the name of the state
 unordered_map<string, vector<node>> HashTable; // Hashtable whih use predefine mapping for string
-vector<node> result2;    //this vector will store the final result of the queries
-int result_number;      //this variable will store the number of results we want to receive
+vector<node> result2;                          //this vector will store the final result of the queries
+int result_number;                             //this variable will store the number of results we want to receive
 
 // comparator function which will compare the data on the bases of number of cases
-bool cmp(node A, node B) {
-    if (A.cases > B.cases) return true;
+bool cmp(node A, node B)
+{
+    if (A.cases > B.cases)
+        return true;
     return false;
 }
 
 // comparator function which will compare the data on the bases of number of deaths
-bool cmp2(node A, node B) {
-    if (A.deaths > B.deaths) return true;
+bool cmp2(node A, node B)
+{
+    if (A.deaths > B.deaths)
+        return true;
     return false;
 }
 
-
 // IN this function we will store the elements in the HashTable
 /*void insert_elements() {
-
     for (int i = 0; i < 4; i++) {
         node Datax = node();
         Datax.state = "State1";
@@ -61,7 +64,6 @@ bool cmp2(node A, node B) {
         Datax.deaths = rand() % 100;
         HashTable[Datax.state].push_back(Datax);
     }
-
     for (int i = 0; i < 4; i++) {
         node Datax = node();
         Datax.state = "State2";
@@ -70,7 +72,6 @@ bool cmp2(node A, node B) {
         Datax.deaths = rand() % 100;
         HashTable[Datax.state].push_back(Datax);
     }
-
     for (int i = 0; i < 4; i++) {
         node Datax = node();
         Datax.state = "State3";
@@ -79,99 +80,122 @@ bool cmp2(node A, node B) {
         Datax.deaths = rand() % 100;
         HashTable[Datax.state].push_back(Datax);
     }
-
     //sorting the table on the cases of number of cases
     trav(state, HashTable) sort(all(state.ss), cmp);
-
 }*/
 
 // this function traverse the whole table and print each data
-void print_all_data() {
+void print_all_data()
+{
     cout << "State\tDate\tCases\tDeaths\n";
-    trav(x, HashTable) {
-        trav(data, x.ss) {
+    trav(x, HashTable)
+    {
+        trav(data, x.ss)
+        {
             cout << data.state << " " << data.date << " " << data.cases << "\t" << data.deaths << endl;
         }
         cout << endl;
     }
 }
 
-
 // this function will gave the result for highest number of cases
-vector<node> Cases_in_each_state(int num) {
+vector<node> Cases_in_each_state(int num, string startDate)
+{
 
     result2.clear(); //clearing the list
 
     // travering each state and push the data on 0th index in the result
-    trav(data, HashTable) {
-        result2.pb(data.ss[0]);
+    trav(data, HashTable)
+    {
+        if (data.ss[0].date >= startDate)
+            result2.pb(data.ss[0]);
     }
 
     //sort the result on the basis of number of cases
     sort(all(result2), cmp);
     //while result size is more then required number pop_back from the result
-    while (result2.size() > num) result2.pop_back();
+    while (result2.size() > num)
+        result2.pop_back();
 
     //return the result
     return result2;
 }
 
 // this function will resturn the data of states woth highest number of deaths
-vector<node> Deaths_in_each_state(int num) {
+vector<node> Deaths_in_each_state(int num, string startDate)
+{
 
     //clearing the result
     result2.clear();
 
     //traversing the whole table and put the data in result with the most number of deaths
-    trav(state, HashTable) {
+    trav(state, HashTable)
+    {
         node temp = state.ss[0];
-        trav(data, state.ss) {
+        trav(data, state.ss)
+        {
             // comparing the number of deaths on each day for the perticular state
-            if (data.deaths > temp.deaths) temp = data;
+            if (data.deaths > temp.deaths)
+                temp = data;
         }
-        result2.pb(temp);
+        if (temp.date >= startDate)
+            result2.pb(temp);
     }
 
     //sort the result on the basis of deaths
     sort(all(result2), cmp2);
     //while result size is more then required number pop_back from the result
-    while (result2.size() > num) result2.pop_back();
+    while (result2.size() > num)
+        result2.pop_back();
 
     return result2;
 }
 
 /***********************BTree Data Structure by Yuko Matsumoto***********/
 // This data structure will stores the data of a state at a perticular date
-struct data1 {
-    string state;   //name of the state
-    string date;    //date
-    int cases;      // number of cases on that date
-    int deaths;     // number of deaths on that date
+struct data1
+{
+    string state; //name of the state
+    string date;  //date
+    int cases;    // number of cases on that date
+    int deaths;   // number of deaths on that date
 };
 
-vector<data1> result;    //this vector will stores the result
-int resultNumber;       //Number of results to be stored
+vector<data1> result; //this vector will stores the result
+int resultNumber;     //Number of results to be stored
 
 // Compare two datas of the state in order of number of cases -> number of deaths -> date
-bool Compare(data1& A, data1& B) {
-    if (A.cases != B.cases) return A.cases > B.cases;
-    if (A.deaths != B.deaths) return A.deaths > B.deaths;
-    if (A.date.substr(6, 4) != B.date.substr(6, 4)) return A.date.substr(6, 4) > B.date.substr(6, 4);
-    if (A.date.substr(3, 2) != B.date.substr(3, 2)) return A.date.substr(3, 2) > B.date.substr(3, 2);
-    if (A.date.substr(0, 2) != B.date.substr(0, 2)) return A.date.substr(0, 2) > B.date.substr(0, 2);
+bool Compare(data1 &A, data1 &B)
+{
+    if (A.cases != B.cases)
+        return A.cases > B.cases;
+    if (A.deaths != B.deaths)
+        return A.deaths > B.deaths;
+    if (A.date.substr(6, 4) != B.date.substr(6, 4))
+        return A.date.substr(6, 4) > B.date.substr(6, 4);
+    if (A.date.substr(3, 2) != B.date.substr(3, 2))
+        return A.date.substr(3, 2) > B.date.substr(3, 2);
+    if (A.date.substr(0, 2) != B.date.substr(0, 2))
+        return A.date.substr(0, 2) > B.date.substr(0, 2);
     return true;
 }
 
-bool CompareDate(data1& A, string& B) {
-    if (A.date.substr(6, 4) != B.substr(6, 4)) return A.date.substr(6, 4) > B.substr(6, 4);
-    if (A.date.substr(3, 2) != B.substr(3, 2)) return A.date.substr(3, 2) > B.substr(3, 2);
-    if (A.date.substr(0, 2) != B.substr(0, 2)) return A.date.substr(0, 2) > B.substr(0, 2);
+bool CompareDate(data1 &A, string &B)
+{
+    if (A.date.substr(6, 4) != B.substr(6, 4))
+        return A.date.substr(6, 4) > B.substr(6, 4);
+    if (A.date.substr(3, 2) != B.substr(3, 2))
+        return A.date.substr(3, 2) > B.substr(3, 2);
+    if (A.date.substr(0, 2) != B.substr(0, 2))
+        return A.date.substr(0, 2) > B.substr(0, 2);
     return true;
 }
 
 //this function will check if the date matches or not
-bool areEqual(data1& A, string& B) {
-    if (A.date != B) return false;
+bool areEqual(data1 &A, string &B)
+{
+    if (A.date != B)
+        return false;
     return true;
 }
 
@@ -179,11 +203,11 @@ bool areEqual(data1& A, string& B) {
 class BTreeNode
 {
 public:
-    data1* keys; // An array of keys
-    int t;   // Minimum degree (defines the range for number of keys)
-    BTreeNode** C; // An array of child pointers
-    int n;   // Current number of keys
-    bool leaf; // Is true when node is leaf. Otherwise false
+    data1 *keys;   // An array of keys
+    int t;         // Minimum degree (defines the range for number of keys)
+    BTreeNode **C; // An array of child pointers
+    int n;         // Current number of keys
+    bool leaf;     // Is true when node is leaf. Otherwise false
 public:
     BTreeNode(int _t, bool _leaf); // Constructor
 
@@ -194,58 +218,62 @@ public:
 
     // A utility function to split the child y of this node. i is index of y in
     // child array C[]. The Child y must be full when this function is called
-    void splitChild(int i, BTreeNode* y);
+    void splitChild(int i, BTreeNode *y);
 
     // A function to traverse all nodes in a subtree rooted with this node
     void traverse();
 
     // A function to traverse all nodes in a subtree rooted with this node and stores it
-    void findTopSatesByDeaths();
+    void findTopSatesByDeaths(string startDate);
 
     // A function to store Top Cases in all the states
-    void findTopStatesByCases();
+    void findTopStatesByCases(string startDate);
 
     // A function to search a key in the subtree rooted with this node.
     void search(string k); // returns NULL if k is not present.
 
-// Make BTree friend of this so that we can access private members of this
-// class in BTree functions
+    // Make BTree friend of this so that we can access private members of this
+    // class in BTree functions
     friend class BTree;
 };
 
 // A BTree
 class BTree
 {
-    BTreeNode* root; // Pointer to root node
-    int t; // Minimum degree
+    BTreeNode *root; // Pointer to root node
+    int t;           // Minimum degree
 public:
     // Constructor (Initializes tree as empty)
     BTree(int _t)
     {
-        root = NULL; t = _t;
+        root = NULL;
+        t = _t;
     }
 
     // function to traverse the tree
     void traverse()
     {
-        if (root != NULL) root->traverse();
+        if (root != NULL)
+            root->traverse();
     }
 
-    void findTopSatesByDeaths()
+    void findTopSatesByDeaths(string startDate)
     {
-        if (root != NULL) root->findTopSatesByDeaths();
+        if (root != NULL)
+            root->findTopSatesByDeaths(startDate);
     }
 
-
-    void findTopStatesByCases()
+    void findTopStatesByCases(string startDate)
     {
-        if (root != NULL) root->findTopStatesByCases();
+        if (root != NULL)
+            root->findTopStatesByCases(startDate);
     }
 
     // function to search a key in this tree
     void search(string k)
     {
-        if (root != NULL) root->search(k);
+        if (root != NULL)
+            root->search(k);
     }
 
     // The main function that inserts a new key in this B-Tree
@@ -262,7 +290,7 @@ BTreeNode::BTreeNode(int t1, bool leaf1)
     // Allocate memory for maximum number of possible keys
     // and child pointers
     keys = new data1[2 * t - 1];
-    C = new BTreeNode * [2 * t];
+    C = new BTreeNode *[2 * t];
 
     // Initialize the number of keys as 0
     n = 0;
@@ -289,7 +317,9 @@ void BTreeNode::traverse()
         C[i]->traverse();
 }
 
-void BTreeNode::findTopStatesByCases() {
+void BTreeNode::findTopStatesByCases(string startDate)
+{
+    string from_date = "";
 
     //if (result.size() >= resultNumber) return;
     int i;
@@ -298,8 +328,9 @@ void BTreeNode::findTopStatesByCases() {
         // If this is not leaf, then before printing key[i],
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
-            C[i]->findTopStatesByCases();
-        if (keys != NULL) {
+            C[i]->findTopStatesByCases(startDate);
+        if (keys != NULL && keys[i].date >= startDate)
+        {
             //if (result.size() >= resultNumber) return;   // in case of overflow return
             result.push_back(keys[i]);
         }
@@ -307,24 +338,25 @@ void BTreeNode::findTopStatesByCases() {
 
     // store the subtree rooted with last child
     if (leaf == false)
-        C[i]->findTopStatesByCases();
+        C[i]->findTopStatesByCases(startDate);
 }
 
-void BTreeNode::findTopSatesByDeaths() {
+void BTreeNode::findTopSatesByDeaths(string startDate)
+{
     int i;
     for (i = 0; i < n; i++)
     {
         // If this is not leaf, then before printing key[i],
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
-            C[i]->findTopSatesByDeaths();
-        if (keys != NULL)
+            C[i]->findTopSatesByDeaths(startDate);
+        if (keys != NULL && keys[i].date >= startDate)
             result.push_back(keys[i]);
     }
 
     // store the subtree rooted with last child
     if (leaf == false)
-        C[i]->findTopSatesByDeaths();
+        C[i]->findTopSatesByDeaths(startDate);
 }
 
 // Function to search key k in subtree rooted with this node
@@ -339,7 +371,8 @@ void BTreeNode::search(string Date)
         if (leaf == false)
             C[i]->search(Date);
         if (keys != NULL)
-            if (areEqual(keys[i], Date)) {
+            if (areEqual(keys[i], Date))
+            {
                 result.push_back(keys[i]);
             }
     }
@@ -358,7 +391,7 @@ void BTree::insert(data1 Data)
         // Allocate memory for root
         root = new BTreeNode(t, true);
         root->keys[0] = Data; // Insert key
-        root->n = 1; // Update number of keys in root
+        root->n = 1;          // Update number of keys in root
     }
     else // If tree is not empty
     {
@@ -366,7 +399,7 @@ void BTree::insert(data1 Data)
         if (root->n == 2 * t - 1)
         {
             // Allocate memory for new root
-            BTreeNode* s = new BTreeNode(t, false);
+            BTreeNode *s = new BTreeNode(t, false);
 
             // Make old root as child of new root
             s->C[0] = root;
@@ -437,11 +470,11 @@ void BTreeNode::insertNonFull(data1 Data)
 
 // A utility function to split the child y of this node
 // Note that y must be full when this function is called
-void BTreeNode::splitChild(int i, BTreeNode* y)
+void BTreeNode::splitChild(int i, BTreeNode *y)
 {
     // Create a new node which is going to store (t-1) keys
     // of y
-    BTreeNode* z = new BTreeNode(y->t, y->leaf);
+    BTreeNode *z = new BTreeNode(y->t, y->leaf);
     z->n = t - 1;
 
     // Copy the last (t-1) keys of y to z
@@ -487,14 +520,14 @@ private:
     ifstream file;
 
     //file processing methods
-    void openFile();								//open covid data file
-    void validate();								//confirm data file open properly
-    void populate();								//read covid data file & populate data structures with data
-    void closeFile();								//close covid data file
+    void openFile();  //open covid data file
+    void validate();  //confirm data file open properly
+    void populate();  //read covid data file & populate data structures with data
+    void closeFile(); //close covid data file
 
 public:
-    void driver(int num, bool death, string numDay, string numMonth, string numYear);				//execute methods in proper order
-    void displayTopStates(int n, bool death, string numDay, string numMonth, string numYear);       //display top states by death
+    void driver(int num, bool death, string numDay, string numMonth, string numYear);         //execute methods in proper order
+    void displayTopStates(int n, bool death, string numDay, string numMonth, string numYear); //display top states by death
 
     //utilize stl data structures for counting and sorting primary data structures
     map<string, int> mapper;
@@ -506,6 +539,9 @@ public:
     vector<node> hTableRanks;
     std::chrono::duration<double> total1;
     std::chrono::duration<double> total2;
+    std::chrono::duration<double> qtotal1;
+    std::chrono::duration<double> qtotal2;
+
     // Make BTree friend of this so that we can access private members of this
     // class in BTree functions
     //friend class BTree;
@@ -513,7 +549,7 @@ public:
 };
 
 //global objects
-BTree tree(3);                                      //create BTree object to access methods
+BTree tree(3); //create BTree object to access methods
 //no HashTable class
 
 /****************************userMenu Method Defs******************************/
@@ -596,8 +632,8 @@ void userMenu::populate()
         HashTable[Datay.state].push_back(Datay);
         auto stop2 = high_resolution_clock::now();
         //add up times for data structures
-        auto duration1 = duration_cast<seconds>(stop1 - start1);
-        auto duration2 = duration_cast<seconds>(stop2 - start2);
+        auto duration1 = duration_cast<duration<double>>(stop1 - start1);
+        auto duration2 = duration_cast<duration<double>>(stop2 - start2);
         total1 = total1 + duration1;
         total2 = total2 + duration2;
     }
@@ -612,12 +648,10 @@ void userMenu::closeFile()
 }
 
 // Comparator function to sort pairs according to second value
-bool compare(const pair<string, int>& a, const pair<string, int>& b)
+bool compare(const pair<string, int> &a, const pair<string, int> &b)
 {
     return (a.second > b.second);
 }
-
-
 
 //display top n states by death
 void userMenu::displayTopStates(int num, bool death, string numDay, string numMonth, string numYear)
@@ -625,17 +659,37 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     //populate results
     //populate vector with top states
     //call tree function based on death or cases toggle bool
+
+    qtotal1 = high_resolution_clock::now() - high_resolution_clock::now();
+    qtotal2 = high_resolution_clock::now() - high_resolution_clock::now();
+
+    string startDate = numDay + "-" + numMonth + "-" + "20" + numYear;
     if (death)
     {
-        tree.findTopSatesByDeaths();
-        hTableRanks = Deaths_in_each_state(num);
+        auto start1 = high_resolution_clock::now();
+        tree.findTopSatesByDeaths(startDate);
+        auto stop1 = high_resolution_clock::now();
+        auto start2 = high_resolution_clock::now();
+        hTableRanks = Deaths_in_each_state(num, startDate);
+        auto stop2 = high_resolution_clock::now();
+        auto duration1 = duration_cast<duration<double>>(stop1 - start1);
+        auto duration2 = duration_cast<duration<double>>(stop2 - start2);
+        qtotal1 += duration1;
+        qtotal2 += duration2;
     }
     else
     {
-        tree.findTopStatesByCases();
-        hTableRanks = Cases_in_each_state(num);
+        auto start1 = high_resolution_clock::now();
+        tree.findTopStatesByCases(startDate);
+        auto stop1 = high_resolution_clock::now();
+        auto start2 = high_resolution_clock::now();
+        hTableRanks = Cases_in_each_state(num, startDate);
+        auto stop2 = high_resolution_clock::now();
+        auto duration1 = duration_cast<duration<double>>(stop1 - start1);
+        auto duration2 = duration_cast<duration<double>>(stop2 - start2);
+        qtotal1 += duration1;
+        qtotal2 += duration2;
     }
-
 
     //ensure date adjustment for current or futute dates
     int day = stoi(numDay);
@@ -652,26 +706,22 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     //iterate throught results vector from BTree
     for (int i = 0; i < result.size(); i++)
     {
-        //date check to meet date parameters selected by user
-        if (result[i].date >= (numDay + "-" + numMonth + "-" + "20" + numYear))
-            //tally state results to a map for BTree
-            mapper[result[i].state]++;
+        //tally state results to a map for BTree
+        mapper[result[i].state]++;
     }
     //iterate through results vector from HTable
     for (int j = 0; j < hTableRanks.size(); j++)
     {
-        //date check to meet date parameters selected by user
-        if (result[j].date >= (numDay + "-" + numMonth + "-" + "20" + numYear))
-            //tally state results to map for HTable
-            mapper2[hTableRanks[j].state]++;
+        //tally state results to map for HTable
+        mapper2[hTableRanks[j].state]++;
     }
     //move map to vector so BTree data can be sorted
-    for (auto& it : mapper)
+    for (auto &it : mapper)
     {
         stateRanks.push_back(it);
     }
     //move map to vector so HTable data can be sorted
-    for (auto& it2 : mapper2)
+    for (auto &it2 : mapper2)
     {
         stateRanks2.push_back(it2);
     }
@@ -699,7 +749,7 @@ void userMenu::driver(int num, bool death, string numDay, string numMonth, strin
 /****************GUI Interface by Andrew Yu****************************/
 //void updatePageTwo(int number, sf::Font, vector<sf::Text> &vec);
 bool checkNum(int start, int end, string number);
-void StoreImage(string name, sf::Texture& text, map <string, sf::Texture>& imageStorage);
+void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage);
 int main()
 {
     //create objects for integration
@@ -722,19 +772,18 @@ int main()
     string numYear = "";
     string numDay = "";
 
-
     vector<sf::Text> textVec;
     vector<sf::Text> textVec2;
     vector<sf::Text> textVec3;
     vector<sf::Text> textVec4;
 
-
     //start up window
     int length = 1920;
     int width = 1000;
     sf::RenderWindow window(sf::VideoMode(length, width), "Covid Tracker", sf::Style::Titlebar | sf::Style::Close);
+    window.setVerticalSyncEnabled(true);
     // tgui::Gui gui(window);
-     //load main text font
+    //load main text font
     sf::Font font;
     font.loadFromFile("Arvo-Regular.ttf");
     sf::Font bold;
@@ -743,11 +792,10 @@ int main()
     map<string, sf::Texture> imageStorage;
     sf::Vector2u windowSize = window.getSize();
 
-    //set up all the textures 
+    //set up all the textures
     sf::Texture backText;
     backText.loadFromFile("Background.jpg");
     StoreImage("Background", backText, imageStorage);
-
 
     //sf::Texture white;
     //white.loadFromFile("images/white.jpg");
@@ -770,13 +818,13 @@ int main()
     float scaleBackY = (float)windowSize.y / textureBackSize.y;
     background.setScale(scaleBackX, scaleBackY);
     //set the top rectange of the window
-      //  sf::Sprite top(imageStorage["White"]);
-      //  sf::Vector2u textureWhiteSize = white.getSize();
-      //  float scaleWhiteX = (float)windowSize.x / textureWhiteSize.x;
-        //make it transparent
-        //top.setColor(sf::Color(255, 255, 255, 200));
-       // top.setScale(scaleWhiteX, .15);
-        //add title
+    //  sf::Sprite top(imageStorage["White"]);
+    //  sf::Vector2u textureWhiteSize = white.getSize();
+    //  float scaleWhiteX = (float)windowSize.x / textureWhiteSize.x;
+    //make it transparent
+    //top.setColor(sf::Color(255, 255, 255, 200));
+    // top.setScale(scaleWhiteX, .15);
+    //add title
     sf::Text title;
     title.setString("Covid Tracker");
     title.setFont(bold);
@@ -784,13 +832,11 @@ int main()
     title.setFillColor(sf::Color::Blue);
     title.setPosition(750, 30);
 
-
     //make the first answering space
     sf::RectangleShape answerNumStates(sf::Vector2f(170, 40));
     answerNumStates.setPosition(1100, 260);
     answerNumStates.setOutlineColor(sf::Color::Black);
     answerNumStates.setOutlineThickness(0);
-
 
     sf::Text questionOne;
     questionOne.setString("Please enter number of states to display:");
@@ -821,10 +867,8 @@ int main()
     error1.setFillColor(sf::Color::Red);
     error1.setPosition(1100, 300);
 
-
-
     //second answering space//
-            //month
+    //month
     sf::RectangleShape answerDate1(sf::Vector2f(70, 40));
     answerDate1.setPosition(1250, 500);
     answerDate1.setOutlineColor(sf::Color::Black);
@@ -914,7 +958,6 @@ int main()
     questionTwo.setFillColor(sf::Color::Black);
     questionTwo.setPosition(280, 500);
 
-
     //make the bottom team promo
     sf::RectangleShape bottonPromo(sf::Vector2f(240, 90));
     bottonPromo.setPosition(1690, 950);
@@ -928,10 +971,6 @@ int main()
     promoText.setCharacterSize(24);
     promoText.setFillColor(sf::Color::White);
     promoText.setPosition(1700, 960);
-
-
-
-
 
     //make buttons
 
@@ -947,7 +986,6 @@ int main()
     searchText.setCharacterSize(34);
     searchText.setFillColor(sf::Color::Black);
     searchText.setPosition(370, 800);
-
 
     sf::RectangleShape resetButton(sf::Vector2f(160, 70));
     resetButton.setPosition(1700, 720);
@@ -974,7 +1012,6 @@ int main()
     quitText.setCharacterSize(34);
     quitText.setFillColor(sf::Color::Black);
     quitText.setPosition(1740, 800);
-
 
     //choose cases or deaths option
     sf::RectangleShape caseButton(sf::Vector2f(160, 70));
@@ -1018,14 +1055,6 @@ int main()
     searchByError.setFillColor(sf::Color::Red);
     searchByError.setPosition(860, 710);
 
-
-
-
-
-
-
-
-
     //make the second page background rectangles
     sf::RectangleShape whiteSpace1(sf::Vector2f(740, 800));
     whiteSpace1.setPosition(50, 170);
@@ -1038,7 +1067,6 @@ int main()
     bTreeTitle.setCharacterSize(30);
     bTreeTitle.setFillColor(sf::Color::Black);
 
-
     sf::RectangleShape whiteSpace2(sf::Vector2f(740, 800));
     whiteSpace2.setPosition(900, 170);
     whiteSpace2.setFillColor(sf::Color(255, 255, 255, 170));
@@ -1049,7 +1077,6 @@ int main()
     hashTableTitle.setFont(bold);
     hashTableTitle.setCharacterSize(30);
     hashTableTitle.setFillColor(sf::Color::Black);
-    sf::Text time1;
 
     sf::Text description;
     description.setString("");
@@ -1058,21 +1085,36 @@ int main()
     description.setCharacterSize(20);
     description.setFillColor(sf::Color::Black);
 
-    time1.setString("BTree Time: " + to_string(covidObj.total1.count()));
+    sf::Text time1;
+    time1.setString("BTree Insert Time: " + to_string(covidObj.total1.count()));
     time1.setPosition(50, 140);
     time1.setFont(font);
     time1.setCharacterSize(20);
     time1.setFillColor(sf::Color::Red);
 
+    sf::Text qtime1;
+    qtime1.setString("BTree Query Time: " + to_string(covidObj.qtotal1.count()));
+    qtime1.setPosition(510, 140);
+    qtime1.setFont(font);
+    qtime1.setCharacterSize(20);
+    qtime1.setFillColor(sf::Color::Red);
+
     sf::Text time2;
-    time2.setString("HashTable: " + to_string(covidObj.total2.count()));
+    time2.setString("HashTable Insert: " + to_string(covidObj.total2.count()));
     time2.setPosition(900, 140);
     time2.setFont(font);
     time2.setCharacterSize(20);
     time2.setFillColor(sf::Color::Red);
 
+    sf::Text qtime2;
+    qtime2.setString("HashTable Query: " + to_string(covidObj.qtotal2.count()));
+    qtime2.setPosition(1370, 140);
+    qtime2.setFont(font);
+    qtime2.setCharacterSize(20);
+    qtime2.setFillColor(sf::Color::Red);
 
-    for (int x = 1; x <= 25; x++) {
+    for (int x = 1; x <= 25; x++)
+    {
         sf::Text tempText;
         ///create the text for the 2nd page
         tempText.setString("");
@@ -1089,7 +1131,6 @@ int main()
         tempText1.setCharacterSize(16);
         tempText1.setFillColor(sf::Color::Black);
         textVec2.push_back(tempText1);
-
 
         sf::Text tempText2;
         tempText2.setString("");
@@ -1114,25 +1155,27 @@ int main()
         while (window.pollEvent(event))
         {
 
-
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::MouseButtonPressed) {
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
 
                     auto mousePosition = sf::Mouse::getPosition();
                     mousePosition = sf::Mouse::getPosition(window);
 
-
                     sf::Vector2f mousePosFloat(mousePosition.x, mousePosition.y);
                     sf::FloatRect quitRectangle = quitButton.getGlobalBounds();
-                    if (quitRectangle.contains(mousePosFloat)) {
+                    if (quitRectangle.contains(mousePosFloat))
+                    {
 
                         window.close();
                     }
                     sf::FloatRect resetRectangle = resetButton.getGlobalBounds();
-                    if (resetRectangle.contains(mousePosFloat)) {
+                    if (resetRectangle.contains(mousePosFloat))
+                    {
                         visibleError = false;
                         visibleErrorDay = false;
                         visibleErrorMonth = false;
@@ -1163,36 +1206,37 @@ int main()
                         answerTextMonth.setString("");
                         answerTextYear.setString("");
                         page = 0;
-                        for (int x = 0; x < textVec.size(); x++) {
+                        for (int x = 0; x < textVec.size(); x++)
+                        {
                             textVec[x].setString("");
                         }
-                        for (int x = 0; x < textVec2.size(); x++) {
+                        for (int x = 0; x < textVec2.size(); x++)
+                        {
                             textVec2[x].setString("");
                         }
-                        for (int x = 0; x < textVec3.size(); x++) {
+                        for (int x = 0; x < textVec3.size(); x++)
+                        {
                             textVec3[x].setString("");
                         }
-                        for (int x = 0; x < textVec4.size(); x++) {
+                        for (int x = 0; x < textVec4.size(); x++)
+                        {
                             textVec4[x].setString("");
                         }
-
-
-
                     }
-                    if (page == 0) {
+                    if (page == 0)
+                    {
                         sf::FloatRect caseRectangle = caseButton.getGlobalBounds();
-                        if (caseRectangle.contains(mousePosFloat)) {
+                        if (caseRectangle.contains(mousePosFloat))
+                        {
                             caseButton.setOutlineThickness(1);
                             deathButton.setOutlineThickness(0);
                             deathBox = false;
                             caseBox = true;
                             visibleSearch = false;
-
-
-
                         }
                         sf::FloatRect deathRectangle = deathButton.getGlobalBounds();
-                        if (deathRectangle.contains(mousePosFloat)) {
+                        if (deathRectangle.contains(mousePosFloat))
+                        {
                             deathBox = true;
                             caseBox = false;
                             caseButton.setOutlineThickness(0);
@@ -1200,11 +1244,10 @@ int main()
                             visibleSearch = false;
                         }
 
-
-
                         //if click on search
                         sf::FloatRect searchRectangle = searchButton.getGlobalBounds();
-                        if (searchRectangle.contains(mousePosFloat)) {
+                        if (searchRectangle.contains(mousePosFloat))
+                        {
 
                             //test if the number is a number and is less than 50 and over 0
                             bool flag = checkNum(1, 50, numState);
@@ -1214,13 +1257,16 @@ int main()
 
                             // cout << numState << endl;
 
-                            if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true)) {
+                            if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
+                            {
                                 int number = stoi(numState);
                                 string toggle;
-                                if (deathBox == true) {
+                                if (deathBox == true)
+                                {
                                     toggle = "Deaths";
                                 }
-                                else {
+                                else
+                                {
                                     toggle = "Cases";
                                 }
                                 description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle);
@@ -1233,53 +1279,62 @@ int main()
                                 //was going to put this into a function but it appears that sf might not have supported this
                                 page = 1;
                                 int value;
-                                if (number <= 25) {
+                                if (number <= 25)
+                                {
                                     value = number;
                                 }
-                                else {
+                                else
+                                {
                                     value = 25;
                                 }
                                 //counter control variable for results vector, needs to start with 0
                                 int index = 0;
                                 int numberList = 0;
-                                for (int x = 1; x <= value; x++) {
+                                for (int x = 1; x <= value; x++)
+                                {
                                     numberList = covidObj.mapper[covidObj.stateRanks[index].first];
                                     ///create the text for the 2nd page
                                     textVec[x - 1].setString(to_string(x) + ". " + covidObj.stateRanks[index].first + "      " + to_string(numberList));
                                     index++;
                                 }
-                                if (number > 25) {
+                                if (number > 25)
+                                {
                                     int value2 = number - 25;
-                                    for (int x = 1; x <= value2; x++) {
+                                    for (int x = 1; x <= value2; x++)
+                                    {
                                         numberList = covidObj.mapper[covidObj.stateRanks[index].first];
                                         textVec2[x - 1].setString((to_string(x + 25)) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
                                         index++;
                                     }
-
                                 }
                                 //reset index for hash table vector iteration
                                 index = 0;
                                 numberList = 0;
-                                for (int x = 1; x <= value; x++) {
+                                for (int x = 1; x <= value; x++)
+                                {
                                     numberList = covidObj.mapper[covidObj.stateRanks[index].first];
                                     textVec3[x - 1].setString(to_string(x) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
                                     index++;
                                 }
-                                if (number > 25) {
+                                if (number > 25)
+                                {
                                     int value2 = number - 25;
-                                    for (int x = 1; x <= value2; x++) {
+                                    for (int x = 1; x <= value2; x++)
+                                    {
                                         numberList = covidObj.mapper[covidObj.stateRanks[index].first];
                                         textVec4[x - 1].setString((to_string(x + 25)) + ". " + covidObj.stateRanks[index].first + "     " + to_string(numberList));
                                         index++;
                                     }
-
                                 }
                                 cout << "Btree Time: " << covidObj.total1.count() << endl; //may need to use to_string(covidObj.total1.count()) in setString.
                                 cout << "HashTable Time: " << covidObj.total2.count() << endl;
-
-
+                                time1.setString("BTree Insert Time: " + to_string(covidObj.total1.count()));
+                                qtime1.setString("BTree Query Time: " + to_string(covidObj.qtotal1.count()));
+                                time2.setString("HashTable Insert: " + to_string(covidObj.total2.count()));
+                                qtime2.setString("HashTable Query: " + to_string(covidObj.qtotal2.count()));
                             }
-                            else {
+                            else
+                            {
                                 if (flag == false)
                                     visibleError = true;
                                 if (flagDay == false)
@@ -1288,121 +1343,122 @@ int main()
                                     visibleErrorMonth = true;
                                 if (flagYear == false)
                                     visibleErrorYear = true;
-                                if (caseBox == false && deathBox == false) {
+                                if (caseBox == false && deathBox == false)
+                                {
                                     visibleSearch = true;
                                     //cout << "triggered" << endl;
                                 }
                             }
-
                         }
 
                         sf::FloatRect answerOneRect = answerNumStates.getGlobalBounds();
-                        if (answerOneRect.contains(mousePosFloat)) {
+                        if (answerOneRect.contains(mousePosFloat))
+                        {
                             answerNumStates.setOutlineThickness(1);
                             visibleError = false;
                             contained = true;
                             visible1 = 1;
-
                         }
-                        if (!answerOneRect.contains(mousePosFloat)) {
+                        if (!answerOneRect.contains(mousePosFloat))
+                        {
                             contained = false;
                             answerNumStates.setOutlineThickness(0);
-                            if (numState == "") {
+                            if (numState == "")
+                            {
                                 visible1 = 0;
                             }
                         }
                         sf::FloatRect answerMonthRect = answerDate1.getGlobalBounds();
-                        if (answerMonthRect.contains(mousePosFloat)) {
+                        if (answerMonthRect.contains(mousePosFloat))
+                        {
                             answerDate1.setOutlineThickness(1);
                             visibleErrorMonth = false;
                             containedMonth = true;
                             visibleMonth = 1;
-
                         }
-                        if (!answerMonthRect.contains(mousePosFloat)) {
+                        if (!answerMonthRect.contains(mousePosFloat))
+                        {
                             containedMonth = false;
                             answerDate1.setOutlineThickness(0);
-                            if (numMonth == "") {
+                            if (numMonth == "")
+                            {
                                 visibleMonth = 0;
                             }
                         }
                         sf::FloatRect answerDayRect = answerDate2.getGlobalBounds();
-                        if (answerDayRect.contains(mousePosFloat)) {
+                        if (answerDayRect.contains(mousePosFloat))
+                        {
                             answerDate2.setOutlineThickness(1);
                             visibleErrorDay = false;
                             containedDay = true;
                             visibleDay = 1;
-
                         }
-                        if (!answerDayRect.contains(mousePosFloat)) {
+                        if (!answerDayRect.contains(mousePosFloat))
+                        {
                             containedDay = false;
                             answerDate2.setOutlineThickness(0);
-                            if (numDay == "") {
+                            if (numDay == "")
+                            {
                                 visibleDay = 0;
                             }
                         }
 
                         sf::FloatRect answerYearRect = answerDate3.getGlobalBounds();
-                        if (answerYearRect.contains(mousePosFloat)) {
+                        if (answerYearRect.contains(mousePosFloat))
+                        {
                             answerDate3.setOutlineThickness(1);
                             visibleErrorYear = false;
                             containedYear = true;
                             visibleYear = 1;
-
                         }
-                        if (!answerYearRect.contains(mousePosFloat)) {
+                        if (!answerYearRect.contains(mousePosFloat))
+                        {
                             containedYear = false;
                             answerDate3.setOutlineThickness(0);
-                            if (numYear == "") {
+                            if (numYear == "")
+                            {
                                 visibleYear = 0;
                             }
                         }
-
-
-
-
-
-
-
-
-
-
                     }
-
                 }
-
             }
 
-
-            if (contained == true) {
-                if (event.type == sf::Event::TextEntered) {
+            if (contained == true)
+            {
+                if (event.type == sf::Event::TextEntered)
+                {
                     //if delete was hit, i found the number from a youtube video on making buttons with a class
                     //cout << event.text.unicode << endl;
-                    if (event.text.unicode == 8) {
-                        if (numState.size() > 0) {
+                    if (event.text.unicode == 8)
+                    {
+                        if (numState.size() > 0)
+                        {
                             string x = "";
-                            for (int c = 0; c < numState.size() - 1; c++) {
+                            for (int c = 0; c < numState.size() - 1; c++)
+                            {
                                 x += numState[c];
-
                             }
                             numState = x;
                             answerTextOne.setString(numState);
                         }
-
                     }
-                    else if (event.text.unicode == 32) {
+                    else if (event.text.unicode == 32)
+                    {
                         //to stop spaces
                     }
                     //if esc or enter is pressed
-                    else if (event.text.unicode == 13 || event.text.unicode == 27) {
+                    else if (event.text.unicode == 13 || event.text.unicode == 27)
+                    {
                         contained = false;
                         answerNumStates.setOutlineThickness(0);
-                        if (numState == "") {
+                        if (numState == "")
+                        {
                             visible1 = 0;
                         }
-
                     }
-                    else if (event.text.unicode < 128 && numState.size() < 2) {
+                    else if (event.text.unicode < 128 && numState.size() < 2)
+                    {
                         char key = (char)event.text.unicode;
                         numState = numState + key;
 
@@ -1411,34 +1467,40 @@ int main()
                 }
             }
             //text change for month
-            if (containedMonth == true) {
-                if (event.type == sf::Event::TextEntered) {
+            if (containedMonth == true)
+            {
+                if (event.type == sf::Event::TextEntered)
+                {
 
-                    if (event.text.unicode == 8) {
-                        if (numMonth.size() > 0) {
+                    if (event.text.unicode == 8)
+                    {
+                        if (numMonth.size() > 0)
+                        {
                             string x = "";
-                            for (int c = 0; c < numMonth.size() - 1; c++) {
+                            for (int c = 0; c < numMonth.size() - 1; c++)
+                            {
                                 x += numMonth[c];
-
                             }
                             numMonth = x;
                             answerTextMonth.setString(numMonth);
                         }
-
                     }
-                    else if (event.text.unicode == 32) {
+                    else if (event.text.unicode == 32)
+                    {
                         //to stop spaces
                     }
                     //if esc or enter is pressed
-                    else if (event.text.unicode == 13 || event.text.unicode == 27) {
+                    else if (event.text.unicode == 13 || event.text.unicode == 27)
+                    {
                         containedMonth = false;
                         answerTextMonth.setOutlineThickness(0);
-                        if (numMonth == "") {
+                        if (numMonth == "")
+                        {
                             visibleMonth = 0;
                         }
-
                     }
-                    else if (event.text.unicode < 128 && numMonth.size() < 2) {
+                    else if (event.text.unicode < 128 && numMonth.size() < 2)
+                    {
                         char key = (char)event.text.unicode;
                         numMonth = numMonth + key;
 
@@ -1448,35 +1510,40 @@ int main()
             }
 
             //Day change text
-            if (containedDay == true) {
-                if (event.type == sf::Event::TextEntered) {
+            if (containedDay == true)
+            {
+                if (event.type == sf::Event::TextEntered)
+                {
 
-                    if (event.text.unicode == 8) {
-                        if (numDay.size() > 0) {
+                    if (event.text.unicode == 8)
+                    {
+                        if (numDay.size() > 0)
+                        {
                             string x = "";
-                            for (int c = 0; c < numDay.size() - 1; c++) {
+                            for (int c = 0; c < numDay.size() - 1; c++)
+                            {
                                 x += numDay[c];
-
                             }
                             numDay = x;
                             answerTextDay.setString(numDay);
                         }
-
-
                     }
-                    else if (event.text.unicode == 32) {
+                    else if (event.text.unicode == 32)
+                    {
                         //to stop spaces
                     }
                     //if esc or enter is pressed
-                    else if (event.text.unicode == 13 || event.text.unicode == 27) {
+                    else if (event.text.unicode == 13 || event.text.unicode == 27)
+                    {
                         containedDay = false;
                         answerTextDay.setOutlineThickness(0);
-                        if (numDay == "") {
+                        if (numDay == "")
+                        {
                             visibleDay = 0;
                         }
-
                     }
-                    else if (event.text.unicode < 128 && numDay.size() < 2) {
+                    else if (event.text.unicode < 128 && numDay.size() < 2)
+                    {
                         char key = (char)event.text.unicode;
                         numDay = numDay + key;
 
@@ -1485,34 +1552,40 @@ int main()
                 }
             }
             //change year
-            if (containedYear == true) {
-                if (event.type == sf::Event::TextEntered) {
+            if (containedYear == true)
+            {
+                if (event.type == sf::Event::TextEntered)
+                {
 
-                    if (event.text.unicode == 8) {
-                        if (numYear.size() > 0) {
+                    if (event.text.unicode == 8)
+                    {
+                        if (numYear.size() > 0)
+                        {
                             string x = "";
-                            for (int c = 0; c < numYear.size() - 1; c++) {
+                            for (int c = 0; c < numYear.size() - 1; c++)
+                            {
                                 x += numYear[c];
-
                             }
                             numYear = x;
                             answerTextYear.setString(numYear);
                         }
-
                     }
-                    else if (event.text.unicode == 32) {
+                    else if (event.text.unicode == 32)
+                    {
                         //to stop spaces
                     }
                     //if esc or enter is pressed
-                    else if (event.text.unicode == 13 || event.text.unicode == 27) {
+                    else if (event.text.unicode == 13 || event.text.unicode == 27)
+                    {
                         containedYear = false;
                         answerTextYear.setOutlineThickness(0);
-                        if (numYear == "") {
+                        if (numYear == "")
+                        {
                             visibleYear = 0;
                         }
-
                     }
-                    else if (event.text.unicode < 128 && numYear.size() < 2) {
+                    else if (event.text.unicode < 128 && numYear.size() < 2)
+                    {
                         char key = (char)event.text.unicode;
                         numYear = numYear + key;
 
@@ -1520,9 +1593,6 @@ int main()
                     }
                 }
             }
-
-
-
         }
         window.clear();
         //all pages
@@ -1537,13 +1607,13 @@ int main()
         window.draw(resetText);
 
         //first page
-        if (page == 0) {
+        if (page == 0)
+        {
             window.draw(answerNumStates);
             window.draw(answerDate1);
             window.draw(answerDate2);
             window.draw(answerDate3);
             window.draw(questionOne);
-
 
             window.draw(deathButton);
 
@@ -1551,32 +1621,38 @@ int main()
             window.draw(deathText);
             window.draw(caseText);
 
-
             window.draw(searchByTitle);
 
-
-            if (visible1 == 0) {
+            if (visible1 == 0)
+            {
                 window.draw(constraint1);
             }
-            else {
+            else
+            {
                 window.draw(answerTextOne);
             }
-            if (visibleMonth == 0) {
+            if (visibleMonth == 0)
+            {
                 window.draw(monthText);
             }
-            else {
+            else
+            {
                 window.draw(answerTextMonth);
             }
-            if (visibleDay == 0) {
+            if (visibleDay == 0)
+            {
                 window.draw(dayText);
             }
-            else {
+            else
+            {
                 window.draw(answerTextDay);
             }
-            if (visibleYear == 0) {
+            if (visibleYear == 0)
+            {
                 window.draw(yearText);
             }
-            else {
+            else
+            {
                 window.draw(answerTextYear);
             }
 
@@ -1584,84 +1660,94 @@ int main()
 
             window.draw(searchButton);
 
-            if (visibleError == true) {
+            if (visibleError == true)
+            {
                 window.draw(error1);
             }
-            if (visibleErrorDay == true) {
+            if (visibleErrorDay == true)
+            {
                 window.draw(errorDay);
             }
-            if (visibleErrorMonth == true) {
+            if (visibleErrorMonth == true)
+            {
                 window.draw(errorMonth);
             }
-            if (visibleErrorYear == true) {
+            if (visibleErrorYear == true)
+            {
                 window.draw(errorYear);
             }
-            if (visibleSearch == true) {
+            if (visibleSearch == true)
+            {
                 window.draw(searchByError);
             }
 
             window.draw(searchText);
-
-
         }
-        if (page == 1) {
+        if (page == 1)
+        {
             window.draw(whiteSpace1);
             window.draw(whiteSpace2);
             window.draw(time1);
+            window.draw(qtime1);
             window.draw(time2);
+            window.draw(qtime2);
             window.draw(description);
             window.draw(bTreeTitle);
             window.draw(hashTableTitle);
-            for (int x = 0; x < textVec.size(); x++) {
+            for (int x = 0; x < textVec.size(); x++)
+            {
                 window.draw(textVec[x]);
             }
-            for (int x = 0; x < textVec2.size(); x++) {
+            for (int x = 0; x < textVec2.size(); x++)
+            {
                 window.draw(textVec2[x]);
             }
-            for (int x = 0; x < textVec3.size(); x++) {
+            for (int x = 0; x < textVec3.size(); x++)
+            {
                 window.draw(textVec3[x]);
             }
-            for (int x = 0; x < textVec4.size(); x++) {
+            for (int x = 0; x < textVec4.size(); x++)
+            {
                 window.draw(textVec4[x]);
             }
-
         }
-
-
-
-
 
         window.display();
     }
 }
 
-
-void StoreImage(string name, sf::Texture& text, map <string, sf::Texture>& imageStorage) {
+void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage)
+{
     imageStorage.emplace(name, text);
 }
-bool checkNum(int start, int end, string number) {
+bool checkNum(int start, int end, string number)
+{
     bool flag = true;
-    if (number == "" || number == " " || number == "  ") {
+    if (number == "" || number == " " || number == "  ")
+    {
 
         flag = false;
     }
-    for (int c = 0; c < number.size(); c++) {
+    for (int c = 0; c < number.size(); c++)
+    {
 
-        if (isdigit(number[c]) == false) {
+        if (isdigit(number[c]) == false)
+        {
             flag = false;
         }
     }
-    try {
+    try
+    {
         int value = stoi(number);
-        if (value > end || value < start) {
+        if (value > end || value < start)
+        {
             flag = false;
         }
     }
-    catch (...) {
+    catch (...)
+    {
         flag = false;
     }
-
-
 
     return flag;
 }
