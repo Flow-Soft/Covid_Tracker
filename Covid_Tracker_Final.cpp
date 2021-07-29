@@ -105,10 +105,13 @@ vector<node> Cases_in_each_state(int num, string startDate)
     result2.clear(); //clearing the list
 
     // travering each state and push the data on 0th index in the result
-    trav(data, HashTable)
+    trav(state, HashTable)
     {
-        if (data.ss[0].date >= startDate)
-            result2.pb(data.ss[0]);
+        trav(data, state.ss)
+        {
+            if (data.date == startDate)
+                result2.pb(data);
+        }
     }
 
     //sort the result on the basis of number of cases
@@ -131,15 +134,11 @@ vector<node> Deaths_in_each_state(int num, string startDate)
     //traversing the whole table and put the data in result with the most number of deaths
     trav(state, HashTable)
     {
-        node temp = state.ss[0];
         trav(data, state.ss)
         {
-            // comparing the number of deaths on each day for the perticular state
-            if (data.deaths > temp.deaths)
-                temp = data;
+            if (data.date == startDate)
+                result2.pb(data);
         }
-        if (temp.date >= startDate)
-            result2.pb(temp);
     }
 
     //sort the result on the basis of deaths
@@ -165,7 +164,7 @@ vector<data1> result; //this vector will stores the result
 int resultNumber;     //Number of results to be stored
 
 // Compare two datas of the state in order of number of cases -> number of deaths -> date
-bool Compare(data1& A, data1& B)
+bool Compare(data1 &A, data1 &B)
 {
     if (A.cases != B.cases)
         return A.cases > B.cases;
@@ -180,7 +179,7 @@ bool Compare(data1& A, data1& B)
     return true;
 }
 
-bool CompareDate(data1& A, string& B)
+bool CompareDate(data1 &A, string &B)
 {
     if (A.date.substr(6, 4) != B.substr(6, 4))
         return A.date.substr(6, 4) > B.substr(6, 4);
@@ -192,7 +191,7 @@ bool CompareDate(data1& A, string& B)
 }
 
 //this function will check if the date matches or not
-bool areEqual(data1& A, string& B)
+bool areEqual(data1 &A, string &B)
 {
     if (A.date != B)
         return false;
@@ -203,9 +202,9 @@ bool areEqual(data1& A, string& B)
 class BTreeNode
 {
 public:
-    data1* keys;   // An array of keys
+    data1 *keys;   // An array of keys
     int t;         // Minimum degree (defines the range for number of keys)
-    BTreeNode** C; // An array of child pointers
+    BTreeNode **C; // An array of child pointers
     int n;         // Current number of keys
     bool leaf;     // Is true when node is leaf. Otherwise false
 public:
@@ -218,7 +217,7 @@ public:
 
     // A utility function to split the child y of this node. i is index of y in
     // child array C[]. The Child y must be full when this function is called
-    void splitChild(int i, BTreeNode* y);
+    void splitChild(int i, BTreeNode *y);
 
     // A function to traverse all nodes in a subtree rooted with this node
     void traverse();
@@ -240,7 +239,7 @@ public:
 // A BTree
 class BTree
 {
-    BTreeNode* root; // Pointer to root node
+    BTreeNode *root; // Pointer to root node
     int t;           // Minimum degree
 public:
     // Constructor (Initializes tree as empty)
@@ -290,7 +289,7 @@ BTreeNode::BTreeNode(int t1, bool leaf1)
     // Allocate memory for maximum number of possible keys
     // and child pointers
     keys = new data1[2 * t - 1];
-    C = new BTreeNode * [2 * t];
+    C = new BTreeNode *[2 * t];
 
     // Initialize the number of keys as 0
     n = 0;
@@ -319,9 +318,8 @@ void BTreeNode::traverse()
 
 void BTreeNode::findTopStatesByCases(string startDate)
 {
-    string from_date = "";
-
     //if (result.size() >= resultNumber) return;
+
     int i;
     for (i = 0; i < n; i++)
     {
@@ -329,7 +327,7 @@ void BTreeNode::findTopStatesByCases(string startDate)
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
             C[i]->findTopStatesByCases(startDate);
-        if (keys != NULL && keys[i].date >= startDate)
+        if (keys != NULL && keys[i].date == startDate)
         {
             //if (result.size() >= resultNumber) return;   // in case of overflow return
             result.push_back(keys[i]);
@@ -343,6 +341,7 @@ void BTreeNode::findTopStatesByCases(string startDate)
 
 void BTreeNode::findTopSatesByDeaths(string startDate)
 {
+
     int i;
     for (i = 0; i < n; i++)
     {
@@ -350,7 +349,7 @@ void BTreeNode::findTopSatesByDeaths(string startDate)
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
             C[i]->findTopSatesByDeaths(startDate);
-        if (keys != NULL && keys[i].date >= startDate)
+        if (keys != NULL && keys[i].date == startDate)
             result.push_back(keys[i]);
     }
 
@@ -399,7 +398,7 @@ void BTree::insert(data1 Data)
         if (root->n == 2 * t - 1)
         {
             // Allocate memory for new root
-            BTreeNode* s = new BTreeNode(t, false);
+            BTreeNode *s = new BTreeNode(t, false);
 
             // Make old root as child of new root
             s->C[0] = root;
@@ -470,11 +469,11 @@ void BTreeNode::insertNonFull(data1 Data)
 
 // A utility function to split the child y of this node
 // Note that y must be full when this function is called
-void BTreeNode::splitChild(int i, BTreeNode* y)
+void BTreeNode::splitChild(int i, BTreeNode *y)
 {
     // Create a new node which is going to store (t-1) keys
     // of y
-    BTreeNode* z = new BTreeNode(y->t, y->leaf);
+    BTreeNode *z = new BTreeNode(y->t, y->leaf);
     z->n = t - 1;
 
     // Copy the last (t-1) keys of y to z
@@ -526,8 +525,8 @@ private:
     void closeFile(); //close covid data file
 
 public:
-    void driver(int num, bool death, string numDay, string numMonth, string numYear);         //execute methods in proper order
-    void displayTopStates(int n, bool death, string numDay, string numMonth, string numYear); //display top states by death
+    void driver(int num, bool death, string startDate);         //execute methods in proper order
+    void displayTopStates(int n, bool death, string startDate); //display top states by death
 
     //utilize stl data structures for counting and sorting primary data structures
     map<string, int> mapper;
@@ -648,22 +647,23 @@ void userMenu::closeFile()
 }
 
 // Comparator function to sort pairs according to second value
-bool compare(const pair<string, int>& a, const pair<string, int>& b)
+bool compare(const pair<string, int> &a, const pair<string, int> &b)
 {
     return (a.second > b.second);
 }
 
 //display top n states by death
-void userMenu::displayTopStates(int num, bool death, string numDay, string numMonth, string numYear)
+void userMenu::displayTopStates(int num, bool death, string startDate)
 {
     //populate results
     //populate vector with top states
     //call tree function based on death or cases toggle bool
+    result.clear();
 
     qtotal1 = high_resolution_clock::now() - high_resolution_clock::now();
     qtotal2 = high_resolution_clock::now() - high_resolution_clock::now();
 
-    string startDate = numDay + "-" + numMonth + "-" + "20" + numYear;
+    std::cout << startDate << std::endl;
     if (death)
     {
         auto start1 = high_resolution_clock::now();
@@ -690,38 +690,49 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
         qtotal1 += duration1;
         qtotal2 += duration2;
     }
+    std::cout << result.size() << " " << result2.size() << std::endl;
 
     //ensure date adjustment for current or futute dates
-    int day = stoi(numDay);
-    int month = stoi(numMonth);
-    int year = stoi(numYear);
-    if (month > 7 && day > 1 && year > 20)
-    {
-        //correction dates are based on file dates
-        numDay = 1;
-        numMonth = 7;
-        numYear = 21;
-    }
+    // int day = stoi(numDay);
+    // int month = stoi(numMonth);
+    // int year = stoi(numYear);
+    // if (month > 7 && day > 1 && year > 20)
+    // {
+    //     //correction dates are based on file dates
+    //     numDay = 1;
+    //     numMonth = 7;
+    //     numYear = 21;
+    // }
 
     //iterate throught results vector from BTree
+    mapper.clear();
+    mapper2.clear();
     for (int i = 0; i < result.size(); i++)
     {
         //tally state results to a map for BTree
-        mapper[result[i].state]++;
+        if (death && result[i].deaths > mapper[result[i].state])
+            mapper[result[i].state] = result[i].deaths;
+        else if (!death && result[i].cases > mapper[result[i].state])
+            mapper[result[i].state] = result[i].cases;
     }
     //iterate through results vector from HTable
     for (int j = 0; j < hTableRanks.size(); j++)
     {
         //tally state results to map for HTable
-        mapper2[hTableRanks[j].state]++;
+        if (death && result2[j].deaths > mapper[result2[j].state])
+            mapper[result2[j].state] = result2[j].deaths;
+        else if (!death && result2[j].cases > mapper[result2[j].state])
+            mapper2[result2[j].state] = result2[j].cases;
     }
     //move map to vector so BTree data can be sorted
-    for (auto& it : mapper)
+    stateRanks.clear();
+    stateRanks2.clear();
+    for (auto &it : mapper)
     {
         stateRanks.push_back(it);
     }
     //move map to vector so HTable data can be sorted
-    for (auto& it2 : mapper2)
+    for (auto &it2 : mapper2)
     {
         stateRanks2.push_back(it2);
     }
@@ -730,18 +741,18 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     sort(stateRanks2.begin(), stateRanks2.end(), compare);
 
     //test display sorted values
-    /*for (int i = 0; i < num; i++)
+    for (int i = 0; i < num; i++)
     {
-        cout << hTableRanks[i].state << "    " << hTableRanks[i].cases << endl;
-    }*/
+        cout << stateRanks[i].first << "    " << stateRanks[i].second << endl;
+    }
 }
 
 //execute methods in proper order
-void userMenu::driver(int num, bool death, string numDay, string numMonth, string numYear)
+void userMenu::driver(int num, bool death, string startDate)
 {
     openFile();
     populate();
-    displayTopStates(num, death, numDay, numMonth, numYear);
+    displayTopStates(num, death, startDate);
     closeFile();
 }
 /**************End Integration********************/
@@ -749,8 +760,7 @@ void userMenu::driver(int num, bool death, string numDay, string numMonth, strin
 /****************GUI Interface by Andrew Yu****************************/
 //void updatePageTwo(int number, sf::Font, vector<sf::Text> &vec);
 bool checkNum(int start, int end, string number);
-bool checkDate(string month, string day, string year);
-void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage);
+void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage);
 int main()
 {
     //create objects for integration
@@ -1256,10 +1266,9 @@ int main()
                             bool flagDay = checkNum(1, 31, numDay);
                             bool flagYear = checkNum(19, 21, numYear);
 
-                            bool validDate = checkDate(numMonth, numDay, numYear);
                             // cout << numState << endl;
 
-                            if (validDate && flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
+                            if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
                             {
                                 int number = stoi(numState);
                                 string toggle;
@@ -1271,12 +1280,17 @@ int main()
                                 {
                                     toggle = "Cases";
                                 }
-                                description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle);
+                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + " Search by " + toggle);
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
                                 //begin data structure integration
-                                covidObj.driver(number, deathBox, numDay, numMonth, numYear);
+                                if (stoi(numDay) < 10)
+                                    numDay.insert(0, "0");
+                                if (stoi(numMonth) < 10)
+                                    numMonth.insert(0, "0");
+                                string startDate = "20" + numYear + "-" + numMonth + "-" + numDay;
+                                covidObj.driver(number, deathBox, startDate);
 
                                 //was going to put this into a function but it appears that sf might not have supported this
                                 page = 1;
@@ -1343,8 +1357,6 @@ int main()
                                     visibleErrorDay = true;
                                 if (flagMonth == false)
                                     visibleErrorMonth = true;
-                                if (validDate == false)
-                                    visibleErrorDay = true;
                                 if (flagYear == false)
                                     visibleErrorYear = true;
                                 if (caseBox == false && deathBox == false)
@@ -1720,7 +1732,7 @@ int main()
     }
 }
 
-void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage)
+void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage)
 {
     imageStorage.emplace(name, text);
 }
@@ -1754,17 +1766,4 @@ bool checkNum(int start, int end, string number)
     }
 
     return flag;
-}
-bool checkDate(string month, string day, string year) {
-    
-    if ((month == "6" ||month == "4" ||month =="11" || month == "7" || month == "2") && day == "31") {
-        return false;
-    }
-    if (month == "2" && day == "30")
-        return false;
-    if (month == "2" && day == "29" && year != "20")
-        return false;
-
-    return true;
-
 }
