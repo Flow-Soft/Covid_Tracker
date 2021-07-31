@@ -164,7 +164,7 @@ vector<data1> result; //this vector will stores the result
 int resultNumber;     //Number of results to be stored
 
 // Compare two datas of the state in order of number of cases -> number of deaths -> date
-bool Compare(data1 &A, data1 &B)
+bool Compare(data1& A, data1& B)
 {
     if (A.cases != B.cases)
         return A.cases > B.cases;
@@ -179,7 +179,7 @@ bool Compare(data1 &A, data1 &B)
     return true;
 }
 
-bool CompareDate(data1 &A, string &B)
+bool CompareDate(data1& A, string& B)
 {
     if (A.date.substr(6, 4) != B.substr(6, 4))
         return A.date.substr(6, 4) > B.substr(6, 4);
@@ -191,7 +191,7 @@ bool CompareDate(data1 &A, string &B)
 }
 
 //this function will check if the date matches or not
-bool areEqual(data1 &A, string &B)
+bool areEqual(data1& A, string& B)
 {
     if (A.date != B)
         return false;
@@ -202,9 +202,9 @@ bool areEqual(data1 &A, string &B)
 class BTreeNode
 {
 public:
-    data1 *keys;   // An array of keys
+    data1* keys;   // An array of keys
     int t;         // Minimum degree (defines the range for number of keys)
-    BTreeNode **C; // An array of child pointers
+    BTreeNode** C; // An array of child pointers
     int n;         // Current number of keys
     bool leaf;     // Is true when node is leaf. Otherwise false
 public:
@@ -217,7 +217,7 @@ public:
 
     // A utility function to split the child y of this node. i is index of y in
     // child array C[]. The Child y must be full when this function is called
-    void splitChild(int i, BTreeNode *y);
+    void splitChild(int i, BTreeNode* y);
 
     // A function to traverse all nodes in a subtree rooted with this node
     void traverse();
@@ -239,7 +239,7 @@ public:
 // A BTree
 class BTree
 {
-    BTreeNode *root; // Pointer to root node
+    BTreeNode* root; // Pointer to root node
     int t;           // Minimum degree
 public:
     // Constructor (Initializes tree as empty)
@@ -289,7 +289,7 @@ BTreeNode::BTreeNode(int t1, bool leaf1)
     // Allocate memory for maximum number of possible keys
     // and child pointers
     keys = new data1[2 * t - 1];
-    C = new BTreeNode *[2 * t];
+    C = new BTreeNode * [2 * t];
 
     // Initialize the number of keys as 0
     n = 0;
@@ -398,7 +398,7 @@ void BTree::insert(data1 Data)
         if (root->n == 2 * t - 1)
         {
             // Allocate memory for new root
-            BTreeNode *s = new BTreeNode(t, false);
+            BTreeNode* s = new BTreeNode(t, false);
 
             // Make old root as child of new root
             s->C[0] = root;
@@ -469,11 +469,11 @@ void BTreeNode::insertNonFull(data1 Data)
 
 // A utility function to split the child y of this node
 // Note that y must be full when this function is called
-void BTreeNode::splitChild(int i, BTreeNode *y)
+void BTreeNode::splitChild(int i, BTreeNode* y)
 {
     // Create a new node which is going to store (t-1) keys
     // of y
-    BTreeNode *z = new BTreeNode(y->t, y->leaf);
+    BTreeNode* z = new BTreeNode(y->t, y->leaf);
     z->n = t - 1;
 
     // Copy the last (t-1) keys of y to z
@@ -647,7 +647,7 @@ void userMenu::closeFile()
 }
 
 // Comparator function to sort pairs according to second value
-bool compare(const pair<string, int> &a, const pair<string, int> &b)
+bool compare(const pair<string, int>& a, const pair<string, int>& b)
 {
     return (a.second > b.second);
 }
@@ -727,12 +727,12 @@ void userMenu::displayTopStates(int num, bool death, string startDate)
     //move map to vector so BTree data can be sorted
     stateRanks.clear();
     stateRanks2.clear();
-    for (auto &it : mapper)
+    for (auto& it : mapper)
     {
         stateRanks.push_back(it);
     }
     //move map to vector so HTable data can be sorted
-    for (auto &it2 : mapper2)
+    for (auto& it2 : mapper2)
     {
         stateRanks2.push_back(it2);
     }
@@ -741,10 +741,12 @@ void userMenu::displayTopStates(int num, bool death, string startDate)
     sort(stateRanks2.begin(), stateRanks2.end(), compare);
 
     //test display sorted values
+  
     for (int i = 0; i < num; i++)
     {
         cout << stateRanks[i].first << "    " << stateRanks[i].second << endl;
     }
+    
 }
 
 //execute methods in proper order
@@ -760,7 +762,7 @@ void userMenu::driver(int num, bool death, string startDate)
 /****************GUI Interface by Andrew Yu****************************/
 //void updatePageTwo(int number, sf::Font, vector<sf::Text> &vec);
 bool checkNum(int start, int end, string number);
-void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage);
+void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage);
 int main()
 {
     //create objects for integration
@@ -818,9 +820,6 @@ int main()
 
     sf::Sprite background(imageStorage["Background"]);
 
-    sf::Texture answerBox;
-    answerBox.loadFromFile("images/RectangleWithBlackOutline.jpg");
-    StoreImage("AnswerBox", answerBox, imageStorage);
 
     //fill the entire window will a background image
     sf::Vector2u textureBackSize = backText.getSize();
@@ -1280,7 +1279,7 @@ int main()
                                 {
                                     toggle = "Cases";
                                 }
-                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + " Search by " + toggle);
+                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + " Search by                                          " + toggle);
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
@@ -1732,7 +1731,7 @@ int main()
     }
 }
 
-void StoreImage(string name, sf::Texture &text, map<string, sf::Texture> &imageStorage)
+void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage)
 {
     imageStorage.emplace(name, text);
 }
