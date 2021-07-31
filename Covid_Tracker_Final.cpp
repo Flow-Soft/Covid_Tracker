@@ -1279,7 +1279,7 @@ int main()
                                 {
                                     toggle = "Cases";
                                 }
-                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + " Search by                                          " + toggle);
+                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + "                                               Search by " + toggle);
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
