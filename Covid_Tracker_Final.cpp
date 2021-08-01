@@ -105,13 +105,10 @@ vector<node> Cases_in_each_state(int num, string startDate)
     result2.clear(); //clearing the list
 
     // travering each state and push the data on 0th index in the result
-    trav(state, HashTable)
+    trav(data, HashTable)
     {
-        trav(data, state.ss)
-        {
-            if (data.date == startDate)
-                result2.pb(data);
-        }
+        if (data.ss[0].date >= startDate)
+            result2.pb(data.ss[0]);
     }
 
     //sort the result on the basis of number of cases
@@ -134,11 +131,15 @@ vector<node> Deaths_in_each_state(int num, string startDate)
     //traversing the whole table and put the data in result with the most number of deaths
     trav(state, HashTable)
     {
+        node temp = state.ss[0];
         trav(data, state.ss)
         {
-            if (data.date == startDate)
-                result2.pb(data);
+            // comparing the number of deaths on each day for the perticular state
+            if (data.deaths > temp.deaths)
+                temp = data;
         }
+        if (temp.date >= startDate)
+            result2.pb(temp);
     }
 
     //sort the result on the basis of deaths
@@ -318,8 +319,9 @@ void BTreeNode::traverse()
 
 void BTreeNode::findTopStatesByCases(string startDate)
 {
-    //if (result.size() >= resultNumber) return;
+    string from_date = "";
 
+    //if (result.size() >= resultNumber) return;
     int i;
     for (i = 0; i < n; i++)
     {
@@ -327,7 +329,7 @@ void BTreeNode::findTopStatesByCases(string startDate)
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
             C[i]->findTopStatesByCases(startDate);
-        if (keys != NULL && keys[i].date == startDate)
+        if (keys != NULL && keys[i].date >= startDate)
         {
             //if (result.size() >= resultNumber) return;   // in case of overflow return
             result.push_back(keys[i]);
@@ -337,11 +339,11 @@ void BTreeNode::findTopStatesByCases(string startDate)
     // store the subtree rooted with last child
     if (leaf == false)
         C[i]->findTopStatesByCases(startDate);
+    //n = 0;
 }
 
 void BTreeNode::findTopSatesByDeaths(string startDate)
 {
-
     int i;
     for (i = 0; i < n; i++)
     {
@@ -349,7 +351,7 @@ void BTreeNode::findTopSatesByDeaths(string startDate)
         // traverse the subtree rooted with child C[i].
         if (leaf == false)
             C[i]->findTopSatesByDeaths(startDate);
-        if (keys != NULL && keys[i].date == startDate)
+        if (keys != NULL && keys[i].date >= startDate)
             result.push_back(keys[i]);
     }
 
@@ -525,8 +527,8 @@ private:
     void closeFile(); //close covid data file
 
 public:
-    void driver(int num, bool death, string startDate);         //execute methods in proper order
-    void displayTopStates(int n, bool death, string startDate); //display top states by death
+    void driver(int num, bool death, string numDay, string numMonth, string numYear);         //execute methods in proper order
+    void displayTopStates(int n, bool death, string numDay, string numMonth, string numYear); //display top states by death
 
     //utilize stl data structures for counting and sorting primary data structures
     map<string, int> mapper;
@@ -653,17 +655,16 @@ bool compare(const pair<string, int>& a, const pair<string, int>& b)
 }
 
 //display top n states by death
-void userMenu::displayTopStates(int num, bool death, string startDate)
+void userMenu::displayTopStates(int num, bool death, string numDay, string numMonth, string numYear)
 {
     //populate results
     //populate vector with top states
     //call tree function based on death or cases toggle bool
-    result.clear();
 
     qtotal1 = high_resolution_clock::now() - high_resolution_clock::now();
     qtotal2 = high_resolution_clock::now() - high_resolution_clock::now();
 
-    std::cout << startDate << std::endl;
+    string startDate = numDay + "-" + numMonth + "-" + "20" + numYear;
     if (death)
     {
         auto start1 = high_resolution_clock::now();
@@ -690,43 +691,32 @@ void userMenu::displayTopStates(int num, bool death, string startDate)
         qtotal1 += duration1;
         qtotal2 += duration2;
     }
-    std::cout << result.size() << " " << result2.size() << std::endl;
 
     //ensure date adjustment for current or futute dates
-    // int day = stoi(numDay);
-    // int month = stoi(numMonth);
-    // int year = stoi(numYear);
-    // if (month > 7 && day > 1 && year > 20)
-    // {
-    //     //correction dates are based on file dates
-    //     numDay = 1;
-    //     numMonth = 7;
-    //     numYear = 21;
-    // }
-
+    int day = stoi(numDay);
+    int month = stoi(numMonth);
+    int year = stoi(numYear);
+    if (month > 7 && day > 1 && year > 21)
+    {
+        //correction dates are based on file dates
+        numDay = 1;
+        numMonth = 7;
+        numYear = 21;
+    }
+    cout << "Data structure result size: " << result.size();
     //iterate throught results vector from BTree
-    mapper.clear();
-    mapper2.clear();
     for (int i = 0; i < result.size(); i++)
     {
         //tally state results to a map for BTree
-        if (death && result[i].deaths > mapper[result[i].state])
-            mapper[result[i].state] = result[i].deaths;
-        else if (!death && result[i].cases > mapper[result[i].state])
-            mapper[result[i].state] = result[i].cases;
+        mapper[result[i].state]++;
     }
     //iterate through results vector from HTable
     for (int j = 0; j < hTableRanks.size(); j++)
     {
         //tally state results to map for HTable
-        if (death && result2[j].deaths > mapper[result2[j].state])
-            mapper[result2[j].state] = result2[j].deaths;
-        else if (!death && result2[j].cases > mapper[result2[j].state])
-            mapper2[result2[j].state] = result2[j].cases;
+        mapper2[hTableRanks[j].state]++;
     }
     //move map to vector so BTree data can be sorted
-    stateRanks.clear();
-    stateRanks2.clear();
     for (auto& it : mapper)
     {
         stateRanks.push_back(it);
@@ -741,20 +731,18 @@ void userMenu::displayTopStates(int num, bool death, string startDate)
     sort(stateRanks2.begin(), stateRanks2.end(), compare);
 
     //test display sorted values
-  
-    for (int i = 0; i < num; i++)
+    /*for (int i = 0; i < num; i++)
     {
-        cout << stateRanks[i].first << "    " << stateRanks[i].second << endl;
-    }
-    
+        cout << hTableRanks[i].state << "    " << hTableRanks[i].cases << endl;
+    }*/
 }
 
 //execute methods in proper order
-void userMenu::driver(int num, bool death, string startDate)
+void userMenu::driver(int num, bool death, string numDay, string numMonth, string numYear)
 {
     openFile();
     populate();
-    displayTopStates(num, death, startDate);
+    displayTopStates(num, death, numDay, numMonth, numYear);
     closeFile();
 }
 /**************End Integration********************/
@@ -762,6 +750,7 @@ void userMenu::driver(int num, bool death, string startDate)
 /****************GUI Interface by Andrew Yu****************************/
 //void updatePageTwo(int number, sf::Font, vector<sf::Text> &vec);
 bool checkNum(int start, int end, string number);
+bool checkDate(string month, string day, string year);
 void StoreImage(string name, sf::Texture& text, map<string, sf::Texture>& imageStorage);
 int main()
 {
@@ -820,6 +809,9 @@ int main()
 
     sf::Sprite background(imageStorage["Background"]);
 
+    sf::Texture answerBox;
+    answerBox.loadFromFile("images/RectangleWithBlackOutline.jpg");
+    StoreImage("AnswerBox", answerBox, imageStorage);
 
     //fill the entire window will a background image
     sf::Vector2u textureBackSize = backText.getSize();
@@ -1186,6 +1178,14 @@ int main()
                     sf::FloatRect resetRectangle = resetButton.getGlobalBounds();
                     if (resetRectangle.contains(mousePosFloat))
                     {
+                        //reset maps and vectors
+                        covidObj.mapper.clear();
+                        covidObj.mapper2.clear();
+                        covidObj.stateRanks.clear();
+                        covidObj.stateRanks2.clear();
+                        result.clear();
+                        result2.clear();
+                        HashTable.clear();
                         visibleError = false;
                         visibleErrorDay = false;
                         visibleErrorMonth = false;
@@ -1265,9 +1265,10 @@ int main()
                             bool flagDay = checkNum(1, 31, numDay);
                             bool flagYear = checkNum(19, 21, numYear);
 
+                            bool validDate = checkDate(numMonth, numDay, numYear);
                             // cout << numState << endl;
 
-                            if (flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
+                            if (validDate && flag && flagMonth && flagDay && flagYear && (deathBox == true || caseBox == true))
                             {
                                 int number = stoi(numState);
                                 string toggle;
@@ -1279,17 +1280,12 @@ int main()
                                 {
                                     toggle = "Cases";
                                 }
-                                description.setString("Date " + numMonth + "/" + numDay + "/" + numYear + "                                               Search by " + toggle);
+                                description.setString("Date from " + numMonth + "/" + numDay + "/" + numYear + " to 7/30/21. Search by " + toggle);
                                 /*
                                     THIS IS THE PART WHERE THE DATA IMPLEMENTATION SHOULD BE PLACED
                                 */
                                 //begin data structure integration
-                                if (stoi(numDay) < 10)
-                                    numDay.insert(0, "0");
-                                if (stoi(numMonth) < 10)
-                                    numMonth.insert(0, "0");
-                                string startDate = "20" + numYear + "-" + numMonth + "-" + numDay;
-                                covidObj.driver(number, deathBox, startDate);
+                                covidObj.driver(number, deathBox, numDay, numMonth, numYear);
 
                                 //was going to put this into a function but it appears that sf might not have supported this
                                 page = 1;
@@ -1356,6 +1352,8 @@ int main()
                                     visibleErrorDay = true;
                                 if (flagMonth == false)
                                     visibleErrorMonth = true;
+                                if (validDate == false)
+                                    visibleErrorDay = true;
                                 if (flagYear == false)
                                     visibleErrorYear = true;
                                 if (caseBox == false && deathBox == false)
@@ -1765,4 +1763,17 @@ bool checkNum(int start, int end, string number)
     }
 
     return flag;
+}
+bool checkDate(string month, string day, string year) {
+
+    if ((month == "6" || month == "4" || month == "11" || month == "7" || month == "2") && day == "31") {
+        return false;
+    }
+    if (month == "2" && day == "30")
+        return false;
+    if (month == "2" && day == "29" && year != "20")
+        return false;
+
+    return true;
+
 }
