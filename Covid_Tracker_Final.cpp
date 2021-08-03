@@ -11,6 +11,7 @@
 #include <string.h>
 #include <algorithm>
 #include <unordered_map>
+#include <list>
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
@@ -34,9 +35,8 @@ struct node
 };
 
 //hashTable whch will store the data of each state with key value of the name of the state
-unordered_map<string, vector<node>> HashTable; // Hashtable whih use predefine mapping for string
-vector<node> result2;                          //this vector will store the final result of the queries
-int result_number;                             //this variable will store the number of results we want to receive
+vector<node> result2; //this vector will store the final result of the queries
+int result_number;    //this variable will store the number of results we want to receive
 
 // comparator function which will compare the data on the bases of number of cases
 bool cmp(node A, node B)
@@ -54,102 +54,175 @@ bool cmp2(node A, node B)
     return false;
 }
 
-// IN this function we will store the elements in the HashTable
-/*void insert_elements() {
-    for (int i = 0; i < 4; i++) {
-        node Datax = node();
-        Datax.state = "State1";
-        Datax.date = "01-01-2020";
-        Datax.cases = rand() % 100;
-        Datax.deaths = rand() % 100;
-        HashTable[Datax.state].push_back(Datax);
-    }
-    for (int i = 0; i < 4; i++) {
-        node Datax = node();
-        Datax.state = "State2";
-        Datax.date = "01-01-2020";
-        Datax.cases = rand() % 100;
-        Datax.deaths = rand() % 100;
-        HashTable[Datax.state].push_back(Datax);
-    }
-    for (int i = 0; i < 4; i++) {
-        node Datax = node();
-        Datax.state = "State3";
-        Datax.date = "01-01-2020";
-        Datax.cases = rand() % 100;
-        Datax.deaths = rand() % 100;
-        HashTable[Datax.state].push_back(Datax);
-    }
-    //sorting the table on the cases of number of cases
-    trav(state, HashTable) sort(all(state.ss), cmp);
-}*/
-
-// this function traverse the whole table and print each data
-void print_all_data()
+class HashTable
 {
-    cout << "State\tDate\tCases\tDeaths\n";
-    trav(x, HashTable)
+private:
+    using Item = pair<string, vector<node>>;
+
+    int itemsCount;
+    int bucketsCount;
+    list<Item>** buckets;
+
+    int hash(const string& key)
     {
-        trav(data, x.ss)
+        size_t h = std::hash<string>{}(key) % static_cast<size_t>(bucketsCount);
+        return static_cast<int>(h);
+    }
+
+public:
+    HashTable()
+        : itemsCount{},
+        bucketsCount{},
+        buckets{}
+    {
+    }
+
+    ~HashTable()
+    {
+        for (int i = 0; i < bucketsCount; i++)
         {
-            cout << data.state << " " << data.date << " " << data.cases << "\t" << data.deaths << endl;
+            delete buckets[i];
         }
-        cout << endl;
-    }
-}
-
-// this function will gave the result for highest number of cases
-vector<node> Cases_in_each_state(int num, string startDate)
-{
-
-    result2.clear(); //clearing the list
-
-    // travering each state and push the data on 0th index in the result
-    trav(data, HashTable)
-    {
-        if (data.ss[0].date >= startDate)
-            result2.pb(data.ss[0]);
-    }
-
-    //sort the result on the basis of number of cases
-    sort(all(result2), cmp);
-    //while result size is more then required number pop_back from the result
-    while (result2.size() > num)
-        result2.pop_back();
-
-    //return the result
-    return result2;
-}
-
-// this function will resturn the data of states woth highest number of deaths
-vector<node> Deaths_in_each_state(int num, string startDate)
-{
-
-    //clearing the result
-    result2.clear();
-
-    //traversing the whole table and put the data in result with the most number of deaths
-    trav(state, HashTable)
-    {
-        node temp = state.ss[0];
-        trav(data, state.ss)
+        if (buckets != nullptr)
         {
-            // comparing the number of deaths on each day for the perticular state
-            if (data.deaths > temp.deaths)
-                temp = data;
+            delete[] buckets;
         }
-        if (temp.date >= startDate)
-            result2.pb(temp);
     }
 
-    //sort the result on the basis of deaths
-    sort(all(result2), cmp2);
-    //while result size is more then required number pop_back from the result
-    while (result2.size() > num)
-        result2.pop_back();
+    float loadFactor()
+    {
+        if (bucketsCount == 0)
+        {
+            return -1.0f;
+        }
+        return static_cast<float>(itemsCount) / bucketsCount;
+    }
 
-    return result2;
-}
+    void resize(int newBucketsCount)
+    {
+        list<Item>** newBuckets = new list<Item> *[newBucketsCount] {};
+        for (int i = 0; i < bucketsCount; i++)
+        {
+            if (buckets[i] != nullptr)
+            {
+                for (auto& item : *(buckets[i]))
+                {
+                    int index = hash(item.first);
+                    if (newBuckets[index] == nullptr)
+                    {
+                        newBuckets[index] = new list<Item>;
+                    }
+                    newBuckets[index]->push_back(move(item));
+                }
+            }
+        }
+
+        for (int i = 0; i < bucketsCount; i++)
+        {
+            delete buckets[i];
+        }
+        if (buckets != nullptr)
+        {
+            delete[] buckets;
+        }
+
+        bucketsCount = newBucketsCount;
+        buckets = newBuckets;
+    }
+
+    bool insert(const Item& item)
+    {
+        if (bucketsCount == 0)
+        {
+            resize(2);
+        }
+        else if (loadFactor() > 0.5f)
+        {
+            resize(bucketsCount * 2);
+        }
+        int index = hash(item.first);
+        if (buckets[index] == nullptr)
+        {
+            buckets[index] = new list<Item>;
+        }
+        for (const auto& i : *(buckets[index]))
+        {
+            if (i.first == item.first)
+            {
+                return false;
+            }
+        }
+        buckets[index]->push_back(item);
+        itemsCount++;
+        return true;
+    }
+
+    vector<node>& operator[](const string& key)
+    {
+        insert(Item{ key, vector<node>{} });
+        int index = hash(key);
+        for (auto& item : *(buckets[index]))
+        {
+            if (item.first == key)
+            {
+                return item.second;
+            }
+        }
+        throw "something is wrong";
+    }
+
+    vector<node> topStatesByCases(string date, int count)
+    {
+        vector<node> res;
+        for (int i = 0; i < bucketsCount; i++)
+        {
+            if (buckets[i] != nullptr)
+            {
+                for (auto& item : *(buckets[i]))
+                {
+                    for (auto& node : item.second)
+                    {
+                        if (node.date == date)
+                        {
+                            res.push_back(node);
+                        }
+                    }
+                }
+            }
+        }
+        sort(res.begin(), res.end(), cmp);
+        while (res.size() > count)
+            res.pop_back();
+        return res;
+    }
+
+    vector<node> topStatesByDeaths(string date, int count)
+    {
+        vector<node> res;
+        for (int i = 0; i < bucketsCount; i++)
+        {
+            if (buckets[i] != nullptr)
+            {
+                for (auto& item : *(buckets[i]))
+                {
+                    for (auto& node : item.second)
+                    {
+                        if (node.date == date)
+                        {
+                            res.push_back(node);
+                        }
+                    }
+                }
+            }
+        }
+        sort(res.begin(), res.end(), cmp2);
+        while (res.size() > count)
+            res.pop_back();
+        return res;
+    }
+};
+
+HashTable hashTable; // Hashtable whih use predefine mapping for string
 
 /***********************BTree Data Structure by Yuko Matsumoto***********/
 // This data structure will stores the data of a state at a perticular date
@@ -630,7 +703,8 @@ void userMenu::populate()
         //add current object to Hash Table
         //HTable timer
         auto start2 = high_resolution_clock::now();
-        HashTable[Datay.state].push_back(Datay);
+        hashTable[Datay.state].push_back(Datay);
+        //HashTable[Datay.state].push_back(Datay);
         auto stop2 = high_resolution_clock::now();
         //add up times for data structures
         auto duration1 = duration_cast<duration<double>>(stop1 - start1);
@@ -660,7 +734,9 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
     //populate results
     //populate vector with top states
     //call tree function based on death or cases toggle bool
-
+    result.clear();
+    result2.clear();
+    hTableRanks.clear();
     qtotal1 = high_resolution_clock::now() - high_resolution_clock::now();
     qtotal2 = high_resolution_clock::now() - high_resolution_clock::now();
 
@@ -671,7 +747,7 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
         tree.findTopSatesByDeaths(startDate);
         auto stop1 = high_resolution_clock::now();
         auto start2 = high_resolution_clock::now();
-        hTableRanks = Deaths_in_each_state(num, startDate);
+        hTableRanks = hashTable.topStatesByDeaths(startDate, num);
         auto stop2 = high_resolution_clock::now();
         auto duration1 = duration_cast<duration<double>>(stop1 - start1);
         auto duration2 = duration_cast<duration<double>>(stop2 - start2);
@@ -684,7 +760,7 @@ void userMenu::displayTopStates(int num, bool death, string numDay, string numMo
         tree.findTopStatesByCases(startDate);
         auto stop1 = high_resolution_clock::now();
         auto start2 = high_resolution_clock::now();
-        hTableRanks = Cases_in_each_state(num, startDate);
+        hTableRanks = hashTable.topStatesByCases(startDate, num);
         auto stop2 = high_resolution_clock::now();
         auto duration1 = duration_cast<duration<double>>(stop1 - start1);
         auto duration2 = duration_cast<duration<double>>(stop2 - start2);
@@ -1185,7 +1261,7 @@ int main()
                         covidObj.stateRanks2.clear();
                         result.clear();
                         result2.clear();
-                        HashTable.clear();
+                        //HashTable.clear();
                         visibleError = false;
                         visibleErrorDay = false;
                         visibleErrorMonth = false;
